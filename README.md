@@ -8,3 +8,9 @@ It could be helpful to review each other's work and learn from each other's rese
 Current file structure:
 
 README.md
+?HowToFortran.f #For questions
+!HowToFortran.f #For answers
+.gitignore #utility file
+
+Exe|Out: #for interesting outputs
+  (empty)
