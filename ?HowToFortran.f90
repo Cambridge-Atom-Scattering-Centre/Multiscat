@@ -1,7 +1,7 @@
 ! This script is to ask questions and upload code that we
 ! expect should work, but doesn't. Please add a specific 
 ! question as a comment to all code here. This file is
-! specific to code with the .f file extension.
+! specific to code with the .f90 file extension.
 
         program questions
         
@@ -21,3 +21,4 @@
         
         
         end 
+ 
