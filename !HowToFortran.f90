@@ -33,7 +33,7 @@
   n = 20
   write(*,100) n ! n will be printed, 100 points to next line
 100 format('N=', i2.0) 
-  ! must be 2 spaces back, 'N=' is just printed but the i2.0 breaks down as: 
+  ! 'N=' is just printed but the i2.0 breaks down as: 
   ! i (integer)  2 (width in characters)  .0 (of which 0 are decimals)
   !
   ! See http://www.personal.psu.edu/jhm/f90/lectures/23.html
