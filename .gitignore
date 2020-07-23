@@ -7,6 +7,7 @@
 *.o
 *.out
 .directory
+.6
 
 # Include executables ond outputs when in the Exe|Out directory
 !Exe|Out/*.exe

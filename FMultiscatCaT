@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# A bash script to compare the output of compiling and 
+#running the multiscat.f90 code with a reference
+
+#Before running change permissions (look up chmod)
+#Probably need: chmod u+x FMultiscatCaT
+#Also eliminate Windows line returns (Windows why?!?!)
+#using: sed -i -e 's/\r$//' FMultiscatCaT
+
+# clears old compiled files and outputs
+rm -rf ./*.o
+rm -rf ./multiscat
+rm -rf ./*.out
+
+printf 'Cleared directory, rebuilding...\n\n'
+#re-compiles new files
+make
+
+#executes
+printf 'Executing Multiscat ...\n\n'
+multiscat Multiscat.conf
+
+#tests
+f1='./diffrac10001.out'
+f2='./ExpectedResults/Result1.out'
+
+if cmp -s "$f1" "$f2"
+then
+    printf 'Test 1 passed, .out file behaved as expected\n'
+else
+    printf '##### WARNING: Test1 failed -- diffract.out file is not as expected #####\n'
+fi
