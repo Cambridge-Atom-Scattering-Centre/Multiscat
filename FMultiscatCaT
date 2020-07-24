@@ -8,26 +8,45 @@
 #Also eliminate Windows line returns (Windows why?!?!)
 #using: sed -i -e 's/\r$//' FMultiscatCaT
 
-# clears old compiled files and outputs
-rm -rf ./*.o
-rm -rf ./multiscat
-rm -rf ./*.out
 
-printf 'Cleared directory, rebuilding...\n\n'
-#re-compiles new files
-make
+# Declare an array of string with type
+declare -a Directories=("Test1" "Test2")
 
-#executes
-printf 'Executing Multiscat ...\n\n'
-multiscat Multiscat.conf
+for dir in ${Directories[@]}
+do
+	cd $dir
+	#bring in the necessary files
+	cp ../multiscat.f90 ./multiscat.f90 
+	cp ../potsub.f90 ./potsub.f90 
+	cp ../scatsub.f ./scatsub.f 
+	cp ../diagsub.f ./diagsub.f
+	# clears old compiled files and outputs
+	rm -rf ./*.o
+	rm -rf ./multiscat
+	rm -rf ./*.out
 
-#tests
-f1='./diffrac10001.out'
-f2='./ExpectedResults/Result1.out'
+	printf '\n\nCleared directory for %s, rebuilding...\n\n' $dir
+	#re-compiles new files
+	make
 
-if cmp -s "$f1" "$f2"
-then
-    printf 'Test 1 passed, .out file behaved as expected\n'
-else
-    printf '##### WARNING: Test1 failed -- diffract.out file is not as expected #####\n'
-fi
+	#executes
+	printf 'Executing Multiscat ...\n\n'
+	multiscat Multiscat.conf
+
+	#tests
+	f1='./diffrac10001.out'
+	f2='./ExpectedResults/Result.out'
+
+	if cmp -s "$f1" "$f2"
+	then
+	    printf 'Test passed, .out file behaved as expected\n'
+	else
+	    printf '##### WARNING: Test %s failed  #####\n' $dir
+	fi
+
+	# clears compiled files and outputs
+	rm -rf ./*.o
+	rm -rf ./multiscat
+	rm -rf ./*.out
+	cd ./..
+done
