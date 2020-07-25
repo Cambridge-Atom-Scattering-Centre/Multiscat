@@ -31,12 +31,14 @@ program multiscat
   dimension A0w(npwx),B0w(npwx),vmw(npwx),apw(npwx),bpw(npwx)
   parameter (hbarsq = 4.18020)
   integer startindex,endindex !start and ending indexes of the potential files to be used 
+  integer elmToRead
   !Variables for potential, represented as fourier data
   complex*16 vfcfixed(NZFIXED_MAX,NVFCFIXED_MAX)   !FC's at the fixed points
 
   common /const/ hemass
   common /const/ rmlmda
   common /cells/ a1,a2,b2,ei,theta,phi,a0
+  logical arrayActiveE,arrayActivePhi,arrayActiveTheta
 
 
   !===========================================================================
@@ -84,30 +86,18 @@ program multiscat
 
   ! read in the ranges of energy and scattering angles to be used
   
-  read (80,*) eii,dei,nei 
-  if (dei == 0 .AND. nei > 0) then
-    print *, 'ERROR: Unsupported energy range found in .conf file.'
-    print *, '', nei, ' steps requested with ', dei,' energy delta between them.'
-    stop
-  end if 
-
-  READ(80,*)  (ei_array(i), i=1,0)
+  read (80,*) eii,dei,nei
+  arrayActiveE = (dei == 0 .AND. nei > 0)
+  elmToRead=nei; if (.NOT.arrayActiveE) elmToRead=0
+  READ(80,*)  (ei_array(i), i=1,elmToRead)
   read (80,*) thetai,dtheta,ntheta
-  if (dtheta == 0 .AND. ntheta > 0) then
-    print *, 'ERROR: Unsupported theta range found in .conf file.'
-    print *, '', ntheta, ' steps requested with ', dtheta,' theta delta between them.'
-    stop
-  end if 
-
-  READ(80,*)  (theta_array(i), i=1,0 )
+  arrayActiveTheta = (dtheta == 0 .AND. ntheta > 0)
+  elmToRead=ntheta; if (.NOT.arrayActiveTheta) elmToRead=0
+  READ(80,*)  (theta_array(i), i=1,elmToRead )
   read (80,*) phii,dphi,nphi
-  if (dphi == 0 .AND. nphi > 0) then
-    print *, 'ERROR: Unsupported phi range found in .conf file.'
-    print *, '', nphi, ' steps requested with ', dphi,' phi delta between them.'
-    stop
-  end if 
-
-  READ(80,*)  (phi_array(i), i=1,0 )
+  arrayActivePhi = (dphi == 0 .AND. nphi > 0)
+  elmToRead=nphi; if (.NOT.arrayActivePhi) elmToRead=0
+  READ(80,*)  (phi_array(i), i=1,elmToRead )
 
   print *, 'Initial energy (meV) = ',eii
   print *, 'Energy change (meV) = ',dei
@@ -182,13 +172,28 @@ program multiscat
   print *, 'Energy / meV    Theta / deg    Phi / deg        I00         Sum ' 
   
  do iei=0,nei
+      if (arrayActiveE) then
+         if (iei /= 0) cycle
+      else
+         ei=eii+(iei*dei)
+      end if
 
-    ei=eii+(iei*dei)
     do iphi=0,nphi
-      phi=phii+(iphi*dphi)
+      if (arrayActivePhi) then
+         if (iphi /= 0) cycle
+      else
+         phi=phii+(iphi*dphi)
+      end if
 
       do itheta=0,ntheta
-        theta=thetai+(itheta*dtheta)
+        if (arrayActiveTheta) then
+           if (itheta == 0) cycle
+           if (arrayActiveE) ei=ei_array(itheta)
+           if (arrayActivePhi) phi=phi_array(itheta)
+           theta=theta_array(itheta)
+        else
+           theta=thetai+(itheta*dtheta)
+        end if
       
  !find number of z values required
     call findmz (emax,vmin,nsf,zmin,zmax,m,itest)
@@ -206,12 +211,11 @@ program multiscat
     if (n.gt.nmax) stop 'ERROR: n too big!'
 
 !routines for actually doing the calculation
-    print *, 'n = ', n, '|| m = ', m
     do i = 1,n
       call waves (d(i),a(i),b(i),c(i),zmax)
       b(i) = b(i)/w(m)
       c(i) = c(i)/(w(m)**2)
-
+     ! print *, b(i), c(i)
     end do
     call precon (m,n,vfc,nfc,nfc00,d,e,f,t)
     ifail=0
