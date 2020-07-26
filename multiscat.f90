@@ -11,7 +11,7 @@ program multiscat
   include 'multiscat.inc'
 
   !Define filenames
-  character*40 inputfile,outfile,fourierfile
+  character*40 inputfile,outfile,fourierfile, fourierlabelsfile, scattconditionsfile
       
   !Arrays
   complex*16 x(mmax,nmax), y(mmax,nmax), vfc(mmax,nfcx)
@@ -57,9 +57,16 @@ program multiscat
   print *, ''
 
   !=====================read in parameters from config file==========================
- 
+
   !read in parameters from the config file and make preliminary calculations
   open (80,file=inputfile) 
+  
+  !Load filenames for fourier labes and conditions
+  read (80,*) fourierlabelsfile
+  print *, 'Fourier labels file = ', fourierlabelsfile
+  read (80,*) scattconditionsfile
+  print *, 'Loading scattering conditions from ', scattconditionsfile
+
   read (80,*) itest
   print *, 'Output mode = ',itest
   read (80,*) ipc
@@ -139,12 +146,12 @@ program multiscat
   iwritep=10
   iwritel=11
   ireadip=12
- 
+
   !Label the fourier components-they are listed in 'FourierLabels' and appear in the same order as in the potential file
-  open (98, file='FourierLabels.in', status='old')
+  open (98, file=fourierlabelsfile, status='old')
 
   do i=1, nfc
-     read (98,*)  ivx(i), ivy(i)
+     read (98,*)  ivx(i), ivy(i) !what is going on here?? 98 is never defined , just used
      if  ((ivx(i).eq.0) .and. (ivy(i).eq.0)) nfc00=i
   end do
   close (98)
