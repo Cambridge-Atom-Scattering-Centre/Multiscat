@@ -11,7 +11,7 @@ program multiscat
   include 'multiscat.inc'
 
   !Define filenames
-  character*40 inputfile,outfile,fourierfile, fourierlabelsfile, scattconditionsfile
+  character*40 inputfile,outfile,fourierfile, fourierLabelsFile, scattCondFile
       
   !Arrays
   complex*16 x(mmax,nmax), y(mmax,nmax), vfc(mmax,nfcx)
@@ -62,10 +62,14 @@ program multiscat
   open (80,file=inputfile) 
   
   !Load filenames for fourier labes and conditions
-  read (80,*) fourierlabelsfile
-  print *, 'Fourier labels file = ', fourierlabelsfile
-  read (80,*) scattconditionsfile
-  print *, 'Loading scattering conditions from ', scattconditionsfile
+  read (80,*) fourierLabelsFile
+  print *, 'Fourier labels file = ', fourierLabelsFile
+  read (80,*) scattCondFile
+  print *, 'Loading scattering conditions from ', scattCondFile
+
+  !Test: read and print the whole conditions file (please remove once done)
+  open (81, file=scattCondFile)
+  read (81, *)!Skip the first line 
 
   read (80,*) itest
   print *, 'Output mode = ',itest
@@ -150,8 +154,8 @@ program multiscat
   !Label the fourier components-they are listed in 'FourierLabels' and appear in the same order as in the potential file
   open (98, file=fourierlabelsfile, status='old')
 
-  do i=1, nfc
-     read (98,*)  ivx(i), ivy(i) !what is going on here?? 98 is never defined , just used
+  do i=1, nfc !this can be avoided with iostat (maybe), but nfc is needed anyway
+     read (98,*)  ivx(i), ivy(i) 
      if  ((ivx(i).eq.0) .and. (ivy(i).eq.0)) nfc00=i
   end do
   close (98)
@@ -177,7 +181,20 @@ program multiscat
   print *, ''
   print *, 'Calculating scattering for potential:',fourierfile
   print *, 'Energy / meV    Theta / deg    Phi / deg        I00         Sum ' 
-  
+ 
+do
+  read (81, *, iostat=elmToRead) ei, theta, phi !iostat checks for the end of the file
+  if (elmToRead==0) then !Normal input
+    print *, ei, theta, phi
+  else if (elmToRead<0) then !End if file
+    print *, '-- End of input file --'
+    exit
+  else !Unknown error
+    print *, '#### ERROR: Invalid line found in input file ####'
+    stop
+  end if
+end do
+
  do iei=0,nei
       if (arrayActiveE) then
          if (iei /= 0) cycle
