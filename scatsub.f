@@ -43,6 +43,7 @@ c      if (itest.eq.1) print *, 'Finding num of z values (sub findmz)'
       implicit double precision (a-h,o-z)
 c     
 c     calculate reciprocal lattice, read in channels from chanfile,
+c     [DOCUMENTATION ERROR: chanfile was removed a long time ago]
 c     calculate d (z-component of energy of outgoing wave) for 
 c     each channel
 c     
@@ -77,7 +78,6 @@ c     if d(i) < 0, channel open, possible diffraction spot
 c     if d(i) > 0, channel closed, no spot
 c     
       include 'multiscat.inc'
-      character*20 chanfile
       dimension d(nmax), ix(nmax), iy(nmax)
       
       common /cells/ a1,a2,b2,ei,theta,phi,a0,gax,gay,gbx,gby
@@ -343,7 +343,7 @@ c
 c     Initial step:
 c
       kount = 0
- 1    xx(1:mn,1)=x(1:mn)
+      xx(1:mn,1)=x(1:mn)
       do i = 1,mn
          y(i) = x(i)
       enddo
@@ -610,7 +610,7 @@ c
       return
       end
  
-      subroutine output (ei,theta,phi,ix,iy,n,n00,d,p,nsf,outfile,itest)
+      subroutine output (ei,theta,phi,ix,iy,n,n00,d,p,itest)
 
       implicit double precision (a-h,o-z)
 c
@@ -620,7 +620,6 @@ c     for a given set of beam parameters ei, theta, and phi.
 c     -------------------------------------------------------------------
 c
       dimension ix(n), iy(n), d(n), p(n)
-      character*40 outfile
       sum = 0.0d0
 c      write(*,*) p(n00)
       if (itest.eq.1) then

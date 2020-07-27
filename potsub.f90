@@ -16,18 +16,17 @@
 ! All z values are sequential, that is each whole basis function data is together,
 ! going from minimum z to maximum z, before progressing to the next FC.
 
-subroutine loadfixedpot(stepzmin,stepzmax,nzfixed,nfc,vfcfixed,fourierfile,itest)
+subroutine loadfixedpot(nzfixed,nfc,vfcfixed,fourierfile,itest)
 
   implicit double precision (a-h,o-z)
   include 'multiscat.inc'
 
-  integer        i,j,k                               !loop indecies
+  integer        i,j                               !loop indecies
   integer        nzfixed                             !number of z values in fixed fourier components
   integer        nfc                           !number of fourier components
   integer        itest                               !Test mode 1=yes, 0=no
   complex*16     vfcfixed(NZFIXED_MAX,NVFCFIXED_MAX) !Fixed Fourier component data
-  character*40   fourierfile                         !Fourier component data file
-  complex*16     test                            
+  character*40   fourierfile                         !Fourier component data file                          
   common /const/rmlmda
 
 
@@ -61,7 +60,7 @@ end subroutine loadfixedpot
 !           The whole of the requested vfc matrix is generated here
 !           Also, have to set which is the zero fourier cmpt (nfc00)
 
-subroutine potent(stepzmin,stepzmax,nzfixed,vfcfixed,nfc,vfc,m,z,ividx,ivflag,itest,ivx,ivy)
+subroutine potent(stepzmin,stepzmax,nzfixed,vfcfixed,nfc,vfc,m,z,ividx,ivflag)
 
   implicit double precision (a-h,o-z)
   include 'multiscat.inc'
@@ -70,8 +69,7 @@ subroutine potent(stepzmin,stepzmax,nzfixed,vfcfixed,nfc,vfc,m,z,ividx,ivflag,it
   !complex*16 vfcfixed(nzfixed, nvfcfixed)        ! fixed fourier cmpts
   complex*16 vfcfixed(NZFIXED_MAX,NVFCFIXED_MAX)
   dimension z(m)                                 ! requested z points (m=num z points)
-  dimension ividx(nfc), ivflag(nfc),ivx(nfc),ivy(nfc)
-  complex*16 mytest
+  dimension ividx(nfc), ivflag(nfc)
   complex*16 atmp, btmp, vrealtmp
 
 

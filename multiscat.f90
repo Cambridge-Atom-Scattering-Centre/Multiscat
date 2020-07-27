@@ -20,14 +20,13 @@ program multiscat
   complex*16 a(nmax), b(nmax), c(nmax), s(nmax)
       
   !More Arrays
-  dimension icx(nmax,ncmx), icy(nmax,ncmx), ncn(ncmx), ncn00(ncmx)
+  dimension icx(nmax,ncmx), icy(nmax,ncmx)
   dimension ix(nmax), iy(nmax), ivx(nfcx), ivy(nfcx), ie(nmax,ncmx)
   dimension p(nmax), w(mmax), z(mmax)
   dimension ep(nmax,ncmx),eep(nmax,ncmx),cp(nmax,ncmx),dw(nmax,ncmx)
   dimension d(nmax), e(mmax), f(mmax,nmax), t(mmax,mmax)
-  dimension ivsym(nfcx),ividx(nfcx),ivflag(nfcx)
-  dimension ctheta(ncmx),cphi(ncmx),cei(ncmx), ne(ncmx)
-  dimension xc(npmax), xc0(npmax),q(1000), ei_array(1000), phi_array(1000), theta_array(1000)
+  dimension ividx(nfcx),ivflag(nfcx)
+  dimension ctheta(ncmx),cphi(ncmx),cei(ncmx)
   dimension A0w(npwx),B0w(npwx),vmw(npwx),apw(npwx),bpw(npwx)
   parameter (hbarsq = 4.18020)
   integer startindex,endindex !start and ending indexes of the potential files to be used 
@@ -144,7 +143,7 @@ program multiscat
       
   !========Initialize the potential================================================
   
-    call loadfixedpot(stepzmin,stepzmax,nzfixed,nfc,vfcfixed,fourierfile,itest)
+    call loadfixedpot(nzfixed,nfc,vfcfixed,fourierfile,itest)
     !this will read in the potential Fourier components and convert to the program units
   
   !========Do the scaterring calculations=========================================
@@ -166,7 +165,7 @@ program multiscat
         call tshape (zmin,zmax,m,w,z,t,itest)
       
         !interpolate vfcs to required z positions
-        call potent(stepzmin,stepzmax,nzfixed,vfcfixed,nfc,vfc,m,z,ividx,ivflag,itest,ivx,ivy)
+        call potent(stepzmin,stepzmax,nzfixed,vfcfixed,nfc,vfc,m,z,ividx,ivflag,ivx)
     
         !get reciprocal lattice points    (also calculate how many channels are required for the calculation) 
         call basis(d,ix,iy,n,n00,dmax,imax,iwrite,itest)
@@ -190,7 +189,7 @@ program multiscat
         end if
         
         ! write outputs 
-        call output(ei,theta,phi,ix,iy,n,n00,d,p,nsf,outfile,itest)
+        call output(ei,theta,phi,ix,iy,n,n00,d,p,itest)
     
       else if (endOfFile<0) then !End of file
         print *, '-- End of scattering conditions file --'
