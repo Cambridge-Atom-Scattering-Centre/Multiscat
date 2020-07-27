@@ -31,14 +31,13 @@ program multiscat
   dimension A0w(npwx),B0w(npwx),vmw(npwx),apw(npwx),bpw(npwx)
   parameter (hbarsq = 4.18020)
   integer startindex,endindex !start and ending indexes of the potential files to be used 
-  integer elmToRead
+  integer endOfFile
   !Variables for potential, represented as fourier data
   complex*16 vfcfixed(NZFIXED_MAX,NVFCFIXED_MAX)   !FC's at the fixed points
 
   common /const/ hemass
   common /const/ rmlmda
   common /cells/ a1,a2,b2,ei,theta,phi,a0
-  logical arrayActiveE,arrayActivePhi,arrayActiveTheta
 
 
   !===========================================================================
@@ -94,34 +93,6 @@ program multiscat
   read (80,*) imax
   print *, 'Max index of channels = ',imax
   print *, ''
-
-  ! read in the ranges of energy and scattering angles to be used
-  
-  read (80,*) eii,dei,nei
-  arrayActiveE = (dei == 0 .AND. nei > 0)
-  elmToRead=nei; if (.NOT.arrayActiveE) elmToRead=0
-  READ(80,*)  (ei_array(i), i=1,elmToRead)
-  read (80,*) thetai,dtheta,ntheta
-  arrayActiveTheta = (dtheta == 0 .AND. ntheta > 0)
-  elmToRead=ntheta; if (.NOT.arrayActiveTheta) elmToRead=0
-  READ(80,*)  (theta_array(i), i=1,elmToRead )
-  read (80,*) phii,dphi,nphi
-  arrayActivePhi = (dphi == 0 .AND. nphi > 0)
-  elmToRead=nphi; if (.NOT.arrayActivePhi) elmToRead=0
-  READ(80,*)  (phi_array(i), i=1,elmToRead )
-
-  print *, 'Initial energy (meV) = ',eii
-  print *, 'Energy change (meV) = ',dei
-  print *, 'Num energy steps = ',nei
-  print *, 'Energy array = ',(ei_array(i), i=1, nei)
-  print *, 'Initial theta (deg) = ',thetai
-  print *, 'Theta change (deg) = ',dtheta
-  print *, 'Num theta steps = ',ntheta
-  print *, 'Theta array = ',(theta_array(i), i=1, ntheta)
-  print *, 'Initial phi (meV) = ',phii
-  print *, 'Phi change (meV) = ',dphi
-  print *, 'Num phi steps = ',nphi
-  print *, 'Phi array = ',(phi_array(i), i=1, nphi)
   
   !read in and set shape of real space lattice; it is hexagonal lattice, but a1,a2 and b2 are
   ! its dimensions in cartesian coordinates 
@@ -163,101 +134,73 @@ program multiscat
 ! ============================================================================
 !do loop for using different potential files
   do in=startindex,endindex
-      write(fourierfile,599) in
-599 format('pot',i5,'.in')
-    if (itest.eq.1) write(outfile,598) in
-598 format('diffrac',i5,'.out')
-   ! diffrac will be the output file containing diffraction calculations;
-  if (itest.eq.1) open(21,file=outfile,status='unknown')
-  if (itest.eq.1) write(21,*) 'Diffraction intensities for potential:',fourierfile 
-    
-!========Initialize the potential================================================
-
-  call loadfixedpot(stepzmin,stepzmax,nzfixed,nfc,vfcfixed,fourierfile,itest)
-  !this will read in the potential Fourier components and convert to the program units
-
-!========Do the scaterring calculations=========================================
-  !Calculate scattering over the incident conditions required
-  print *, ''
-  print *, 'Calculating scattering for potential:',fourierfile
-  print *, 'Energy / meV    Theta / deg    Phi / deg        I00         Sum ' 
- 
-do
-  read (81, *, iostat=elmToRead) ei, theta, phi !iostat checks for the end of the file
-  if (elmToRead==0) then !Normal input
-    print *, ei, theta, phi
-  else if (elmToRead<0) then !End if file
-    print *, '-- End of input file --'
-    exit
-  else !Unknown error
-    print *, '#### ERROR: Invalid line found in input file ####'
-    stop
-  end if
-end do
-
- do iei=0,nei
-      if (arrayActiveE) then
-         if (iei /= 0) cycle
-      else
-         ei=eii+(iei*dei)
-      end if
-
-    do iphi=0,nphi
-      if (arrayActivePhi) then
-         if (iphi /= 0) cycle
-      else
-         phi=phii+(iphi*dphi)
-      end if
-
-      do itheta=0,ntheta
-        if (arrayActiveTheta) then
-           if (itheta == 0) cycle
-           if (arrayActiveE) ei=ei_array(itheta)
-           if (arrayActivePhi) phi=phi_array(itheta)
-           theta=theta_array(itheta)
-        else
-           theta=thetai+(itheta*dtheta)
-        end if
+        write(fourierfile,599) in
+  599 format('pot',i5,'.in')
+      if (itest.eq.1) write(outfile,598) in
+  598 format('diffrac',i5,'.out')
+     ! diffrac will be the output file containing diffraction calculations;
+    if (itest.eq.1) open(21,file=outfile,status='unknown')
+    if (itest.eq.1) write(21,*) 'Diffraction intensities for potential:',fourierfile 
       
- !find number of z values required
-    call findmz (emax,vmin,nsf,zmin,zmax,m,itest)
-    if (itest.eq.1) write(21,*) 'Required number of z grid points, m = ',m
-    if (m.gt.mmax) stop 'ERROR: m too big!'
- !calculation kinetic enery matrix (possibly?)    
-    call tshape (zmin,zmax,m,w,z,t,itest)
+  !========Initialize the potential================================================
   
- !interpolate vfcs to required z positions
-    call potent(stepzmin,stepzmax,nzfixed,vfcfixed,nfc,vfc,m,z,ividx,ivflag,itest,ivx,ivy)
-
-    !get reciprocal lattice points    (also calculate how many channels are required for the calculation) 
-    call basis(d,ix,iy,n,n00,dmax,imax,iwrite,itest)
-    if (itest.eq.1) write(21,*) 'Number of diffraction channels, n =',n
-    if (n.gt.nmax) stop 'ERROR: n too big!'
-
-!routines for actually doing the calculation
-    do i = 1,n
-      call waves (d(i),a(i),b(i),c(i),zmax)
-      b(i) = b(i)/w(m)
-      c(i) = c(i)/(w(m)**2)
-     ! print *, b(i), c(i)
-    end do
-    call precon (m,n,vfc,nfc,nfc00,d,e,f,t)
-    ifail=0
-    call gmres  (x,xx,y,m,ix,iy,n,n00,vfc,ivx,ivy,nfc,a,b,c,d,e,f,p,s,t,eps,ipc,ifail)
-
-    !if failure, then put all intensity to -1
-    if (ifail.eq.1) then
-      p=-1
-    end if
+    call loadfixedpot(stepzmin,stepzmax,nzfixed,nfc,vfcfixed,fourierfile,itest)
+    !this will read in the potential Fourier components and convert to the program units
+  
+  !========Do the scaterring calculations=========================================
+    !Calculate scattering over the incident conditions required
+    print *, ''
+    print *, 'Calculating scattering for potential:',fourierfile
+    print *, 'Energy / meV    Theta / deg    Phi / deg        I00         Sum ' 
+   
+    do
+      read (81, *, iostat=endOfFile) ei, theta, phi !iostat checks for the end of the file
+      if (endOfFile==0) then !Normal input
+        !print *, ei, theta, phi
+          
+        !find number of z values required
+        call findmz (emax,vmin,nsf,zmin,zmax,m,itest)
+        if (itest.eq.1) write(21,*) 'Required number of z grid points, m = ',m
+        if (m.gt.mmax) stop 'ERROR: m too big!'
+        !calculation kinetic enery matrix (possibly?)    
+        call tshape (zmin,zmax,m,w,z,t,itest)
+      
+        !interpolate vfcs to required z positions
+        call potent(stepzmin,stepzmax,nzfixed,vfcfixed,nfc,vfc,m,z,ividx,ivflag,itest,ivx,ivy)
     
-! write outputs 
-    call output(ei,theta,phi,ix,iy,n,n00,d,p,nsf,outfile,itest)
-
-  end do             
-  end do
-  end do
-  if (itest.eq.1) close (21)
-  end do
-
+        !get reciprocal lattice points    (also calculate how many channels are required for the calculation) 
+        call basis(d,ix,iy,n,n00,dmax,imax,iwrite,itest)
+        if (itest.eq.1) write(21,*) 'Number of diffraction channels, n =',n
+        if (n.gt.nmax) stop 'ERROR: n too big!'
+    
+        !routines for actually doing the calculation
+        do i = 1,n
+          call waves (d(i),a(i),b(i),c(i),zmax)
+          b(i) = b(i)/w(m)
+          c(i) = c(i)/(w(m)**2)
+          ! print *, b(i), c(i)
+        end do
+        call precon (m,n,vfc,nfc,nfc00,d,e,f,t)
+        ifail=0
+        call gmres  (x,xx,y,m,ix,iy,n,n00,vfc,ivx,ivy,nfc,a,b,c,d,e,f,p,s,t,eps,ipc,ifail)
+    
+        !if failure, then put all intensity to -1
+        if (ifail.eq.1) then
+          p=-1
+        end if
+        
+        ! write outputs 
+        call output(ei,theta,phi,ix,iy,n,n00,d,p,nsf,outfile,itest)
+    
+      else if (endOfFile<0) then !End of file
+        print *, '-- End of scattering conditions file --'
+        if (itest.eq.1) close (21)
+        exit
+      else !Unknown error
+        print *, '#### ERROR: Invalid line found in input file ####'
+        stop
+      end if
+    end do
+  end do  
 end program multiscat
 
