@@ -43,7 +43,7 @@ c      if (itest.eq.1) print *, 'Finding num of z values (sub findmz)'
       implicit double precision (a-h,o-z)
 c     
 c     calculate reciprocal lattice, read in channels from chanfile,
-c     [DOCUMENTATION ERROR: chanfile was removed a long time ago]
+c     [DOCUMENTATION ERROR: chanfile was made redundant a long time ago]
 c     calculate d (z-component of energy of outgoing wave) for 
 c     each channel
 c     
@@ -205,17 +205,26 @@ c     quadrature rule in the interval a < x < b.
 c     ----------------------------------------------------------------- 
 c     
       dimension w(n),x(n)
+c     A test of efficency
+      print *, n
+
 c     
       l = (n+1)/2
+c     Isn't pi defined above as a double ?!?!?!
       pi = acos(-1.0d0)
+c     ---See Docs/GaussianQuadrature.pdf, top of page 2
       shift = 0.5d0*(b+a)
       scale = 0.5d0*(b-a)
       weight = (b-a)/(n*(n-1))
+c     ---<end doc ref>
       x(1) = a
       w(1) = weight
       do 3 k = 2,l
+c     ---z is the kth zero of the (nth?) Legendre polynomial
          z = cos(pi*(4*k-3)/(4*n-2))
+c     ---This section of code finds the correct z iteratively
          do 2 i = 1,7
+c        --- Evaluates the (nth?) Legendre polynomial at z
             p2 = 0.0d0
             p1 = 1.0d0
             do 1 j = 1,n-1
@@ -223,12 +232,18 @@ c
                p2 = p1
                p1 = ((2*j-1)*z*p2-(j-1)*p3)/j
  1          continue
+c        ---<end doc ref?>
+c        ---Maybe this implements a Newton Raphson root finding?
             p2 = (n-1)*(p2-z*p1)/(1.0d0-z*z)
             p3 = (2.0d0*z*p2-n*(n-1)*p1)/(1.0d0-z*z)
             z = z-p2/p3
+c        ---<end doc ref?>
  2       continue
+c     ---z has been found
+c     ---See Docs/GaussianQuadrature.pdf, top of page 2
          x(k) = shift-scale*z
          x(n+1-k) = shift+scale*z
+c     --- <end doc ref?>
          w(k) = weight/(p1*p1)
          w(n+1-k) = w(k)
  3    continue

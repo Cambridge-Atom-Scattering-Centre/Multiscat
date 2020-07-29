@@ -2703,7 +2703,7 @@
 											"font": "Arial;13;1",
 											"left": 453,
 											"top": 94,
-											"width": 61.419921875,
+											"width": 64.65087890625,
 											"height": 13,
 											"text": "pot*****.in"
 										},
@@ -2738,7 +2738,7 @@
 									"font": "Arial;13;0",
 									"left": 448,
 									"top": 87,
-									"width": 71.419921875,
+									"width": 74.65087890625,
 									"height": 25,
 									"stereotypeLabel": {
 										"$ref": "AAAAAAFzhtXhZQzdPlQ="
@@ -2822,7 +2822,7 @@
 							"containerChangeable": true,
 							"left": 448,
 							"top": 64,
-							"width": 71.419921875,
+							"width": 74.65087890625,
 							"height": 49,
 							"stereotypeDisplay": "icon",
 							"nameCompartment": {
@@ -3046,7 +3046,7 @@
 										"$ref": "AAAAAAFzhtZtRw2Bsb0="
 									},
 									"font": "Arial;13;0",
-									"left": 487,
+									"left": 488,
 									"top": 313,
 									"width": 33.61083984375,
 									"height": 13,
@@ -3069,7 +3069,7 @@
 									},
 									"visible": null,
 									"font": "Arial;13;0",
-									"left": 518,
+									"left": 519,
 									"top": 313,
 									"height": 13,
 									"alpha": 1.5707963267948966,
@@ -3090,7 +3090,7 @@
 									},
 									"visible": false,
 									"font": "Arial;13;0",
-									"left": 474,
+									"left": 475,
 									"top": 314,
 									"height": 13,
 									"alpha": -1.5707963267948966,
@@ -3111,7 +3111,7 @@
 									},
 									"visible": false,
 									"font": "Arial;13;0",
-									"left": 499,
+									"left": 500,
 									"top": 132,
 									"height": 13,
 									"alpha": 0.5235987755982988,
@@ -3153,7 +3153,7 @@
 									},
 									"visible": false,
 									"font": "Arial;13;0",
-									"left": 472,
+									"left": 473,
 									"top": 128,
 									"height": 13,
 									"alpha": -0.5235987755982988,
@@ -3195,7 +3195,7 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"left": 522,
-									"top": 491,
+									"top": 492,
 									"height": 13,
 									"alpha": -0.7853981633974483,
 									"distance": 40,
@@ -3260,7 +3260,7 @@
 								"$ref": "AAAAAAFzhtXhZQzbDds="
 							},
 							"lineStyle": 1,
-							"points": "484:113;495:527",
+							"points": "485:113;495:527",
 							"showVisibility": true,
 							"nameLabel": {
 								"$ref": "AAAAAAFzhtZtSA2GaxY="
@@ -3609,7 +3609,7 @@
 											"font": "Arial;13;1",
 											"left": 317,
 											"top": 822,
-											"width": 116.66357421875,
+											"width": 117.12060546875,
 											"height": 13,
 											"text": "multiscat.inc"
 										},
@@ -3644,7 +3644,7 @@
 									"font": "Arial;13;0",
 									"left": 312,
 									"top": 815,
-									"width": 126.66357421875,
+									"width": 127.12060546875,
 									"height": 25,
 									"stereotypeLabel": {
 										"$ref": "AAAAAAFzht0D4R1zFTg="
@@ -3681,7 +3681,7 @@
 											"font": "Arial;13;0",
 											"left": 317,
 											"top": 845,
-											"width": 116.66357421875,
+											"width": 117.12060546875,
 											"height": 13,
 											"text": "+NZFIXED_MAX",
 											"horizontalAlignment": 0
@@ -3698,7 +3698,7 @@
 											"font": "Arial;13;0",
 											"left": 317,
 											"top": 860,
-											"width": 116.66357421875,
+											"width": 117.12060546875,
 											"height": 13,
 											"text": "+NVFCFIXED_MAX",
 											"horizontalAlignment": 0
@@ -3715,7 +3715,7 @@
 											"font": "Arial;13;0",
 											"left": 317,
 											"top": 875,
-											"width": 116.66357421875,
+											"width": 117.12060546875,
 											"height": 13,
 											"text": "+nmax",
 											"horizontalAlignment": 0
@@ -3732,7 +3732,7 @@
 											"font": "Arial;13;0",
 											"left": 317,
 											"top": 890,
-											"width": 116.66357421875,
+											"width": 117.12060546875,
 											"height": 13,
 											"text": "+mmax",
 											"horizontalAlignment": 0
@@ -3749,7 +3749,7 @@
 											"font": "Arial;13;0",
 											"left": 317,
 											"top": 905,
-											"width": 116.66357421875,
+											"width": 117.12060546875,
 											"height": 13,
 											"text": "+nfcx",
 											"horizontalAlignment": 0
@@ -3766,7 +3766,7 @@
 											"font": "Arial;13;0",
 											"left": 317,
 											"top": 920,
-											"width": 116.66357421875,
+											"width": 117.12060546875,
 											"height": 13,
 											"text": "+npmax",
 											"horizontalAlignment": 0
@@ -3783,7 +3783,7 @@
 											"font": "Arial;13;0",
 											"left": 317,
 											"top": 935,
-											"width": 116.66357421875,
+											"width": 117.12060546875,
 											"height": 13,
 											"text": "+lw",
 											"horizontalAlignment": 0
@@ -3800,7 +3800,7 @@
 											"font": "Arial;13;0",
 											"left": 317,
 											"top": 950,
-											"width": 116.66357421875,
+											"width": 117.12060546875,
 											"height": 13,
 											"text": "+liw",
 											"horizontalAlignment": 0
@@ -3817,7 +3817,7 @@
 											"font": "Arial;13;0",
 											"left": 317,
 											"top": 965,
-											"width": 116.66357421875,
+											"width": 117.12060546875,
 											"height": 13,
 											"text": "+liw2",
 											"horizontalAlignment": 0
@@ -3834,7 +3834,7 @@
 											"font": "Arial;13;0",
 											"left": 317,
 											"top": 980,
-											"width": 116.66357421875,
+											"width": 117.12060546875,
 											"height": 13,
 											"text": "+ncmx",
 											"horizontalAlignment": 0
@@ -3851,7 +3851,7 @@
 											"font": "Arial;13;0",
 											"left": 317,
 											"top": 995,
-											"width": 116.66357421875,
+											"width": 117.12060546875,
 											"height": 13,
 											"text": "+npwx",
 											"horizontalAlignment": 0
@@ -3860,7 +3860,7 @@
 									"font": "Arial;13;0",
 									"left": 312,
 									"top": 840,
-									"width": 126.66357421875,
+									"width": 127.12060546875,
 									"height": 173
 								},
 								{
@@ -3916,7 +3916,7 @@
 							"containerChangeable": true,
 							"left": 312,
 							"top": 792,
-							"width": 126.66357421875,
+							"width": 127.12060546875,
 							"height": 222,
 							"stereotypeDisplay": "icon",
 							"nameCompartment": {
@@ -4829,7 +4829,7 @@
 										"$ref": "AAAAAAFzht5leySeO+g="
 									},
 									"font": "Arial;13;0",
-									"left": 422,
+									"left": 423,
 									"top": 1025,
 									"width": 52.38720703125,
 									"height": 13,
@@ -4852,7 +4852,7 @@
 									},
 									"visible": false,
 									"font": "Arial;13;0",
-									"left": 461,
+									"left": 462,
 									"top": 1022,
 									"height": 13,
 									"alpha": 0.7853981633974483,
@@ -4873,7 +4873,7 @@
 									},
 									"visible": false,
 									"font": "Arial;13;0",
-									"left": 421,
+									"left": 422,
 									"top": 1032,
 									"height": 13,
 									"alpha": -0.5235987755982988,
@@ -4980,7 +4980,7 @@
 								"$ref": "AAAAAAFzht0D4R1xbhw="
 							},
 							"lineStyle": 1,
-							"points": "424:1014;478:1135",
+							"points": "425:1014;478:1135",
 							"showVisibility": true,
 							"nameLabel": {
 								"$ref": "AAAAAAFzht5leySiKps="
@@ -5121,7 +5121,8 @@
 								}
 							}
 						}
-					]
+					],
+					"documentation": "This handles the following tasks:\n   -Reads input files and creates variables\n   -Calls the necessary subroutines to solve the scattering problem\n   -Gives the user feedback on the solver's progress\n   -Calls the subroutine to save the output to a file/s\n\nKnown issues: THE CODE APPERS TO HAVE NO CHECKS FOR INDEXING ARRAYS OUT OF RANGE. THIS IS LIKELY TO LEAD TO SEGMENTATION FAULTS AT RANDOM TIMES. DEBUG MODE WILL CAUSE ERRORS IN THIS CASE."
 				},
 				{
 					"_type": "UMLClass",
@@ -7174,7 +7175,8 @@
 								"$ref": "AAAAAAFzht0D4B1viJs="
 							},
 							"name": "NZFIXED_MAX",
-							"documentation": "The max number of z points in fixed pot."
+							"documentation": "The max number of z points in fixed pot.",
+							"type": ""
 						},
 						{
 							"_type": "UMLAttribute",
@@ -7183,7 +7185,8 @@
 								"$ref": "AAAAAAFzht0D4B1viJs="
 							},
 							"name": "NVFCFIXED_MAX",
-							"documentation": "max number of fourier components (fixed, from file)"
+							"documentation": "max number of fourier components (fixed, from file)",
+							"type": ""
 						},
 						{
 							"_type": "UMLAttribute",
@@ -7192,7 +7195,8 @@
 								"$ref": "AAAAAAFzht0D4B1viJs="
 							},
 							"name": "nmax",
-							"documentation": "diffraction channels"
+							"documentation": "diffraction channels",
+							"type": ""
 						},
 						{
 							"_type": "UMLAttribute",
@@ -7201,7 +7205,8 @@
 								"$ref": "AAAAAAFzht0D4B1viJs="
 							},
 							"name": "mmax",
-							"documentation": "z grid points"
+							"documentation": "z grid points",
+							"type": ""
 						},
 						{
 							"_type": "UMLAttribute",
@@ -7210,7 +7215,8 @@
 								"$ref": "AAAAAAFzht0D4B1viJs="
 							},
 							"name": "nfcx",
-							"documentation": "max (?) potential fourier components"
+							"documentation": "max (?) potential fourier components",
+							"type": ""
 						},
 						{
 							"_type": "UMLAttribute",
@@ -7219,7 +7225,8 @@
 								"$ref": "AAAAAAFzht0D4B1viJs="
 							},
 							"name": "npmax",
-							"documentation": "NAG routine E04JAF: no of parameters"
+							"documentation": "NAG routine E04JAF: no of parameters",
+							"type": ""
 						},
 						{
 							"_type": "UMLAttribute",
@@ -7228,7 +7235,8 @@
 								"$ref": "AAAAAAFzht0D4B1viJs="
 							},
 							"name": "lw",
-							"documentation": "???"
+							"documentation": "???",
+							"type": ""
 						},
 						{
 							"_type": "UMLAttribute",
@@ -7237,7 +7245,8 @@
 								"$ref": "AAAAAAFzht0D4B1viJs="
 							},
 							"name": "liw",
-							"documentation": "???"
+							"documentation": "???",
+							"type": ""
 						},
 						{
 							"_type": "UMLAttribute",
@@ -7246,7 +7255,8 @@
 								"$ref": "AAAAAAFzht0D4B1viJs="
 							},
 							"name": "liw2",
-							"documentation": "NAG routine E05CCF parameter"
+							"documentation": "NAG routine E05CCF parameter",
+							"type": ""
 						},
 						{
 							"_type": "UMLAttribute",
@@ -7255,7 +7265,8 @@
 								"$ref": "AAAAAAFzht0D4B1viJs="
 							},
 							"name": "ncmx",
-							"documentation": "number of experimental conditions"
+							"documentation": "number of experimental conditions",
+							"type": ""
 						},
 						{
 							"_type": "UMLAttribute",
@@ -7264,7 +7275,8 @@
 								"$ref": "AAAAAAFzht0D4B1viJs="
 							},
 							"name": "npwx",
-							"documentation": "number of potential well curves"
+							"documentation": "number of potential well curves",
+							"type": ""
 						}
 					]
 				}
@@ -7304,9 +7316,9 @@
 										"$ref": "AAAAAAFzcRhbKblUxd0="
 									},
 									"font": "Arial;13;0",
-									"left": 70.97900390625,
+									"left": 66.58642578125,
 									"top": 10,
-									"width": 152.74072265625,
+									"width": 138.185546875,
 									"height": 13,
 									"text": "FortranMultiscatSequence"
 								},
@@ -7319,7 +7331,7 @@
 									"font": "Arial;13;1",
 									"left": 5,
 									"top": 10,
-									"width": 60.97900390625,
+									"width": 56.58642578125,
 									"height": 13,
 									"text": "interaction"
 								}

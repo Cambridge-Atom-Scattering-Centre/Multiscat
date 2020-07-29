@@ -15,7 +15,16 @@ declare -a Directories=("Test1" "Test2")
 for dir in ${Directories[@]}
 do
 	cd $dir
-	#bring in the necessary files
+	# clears old compiled files and outputs
+	rm -rf ./*.o
+	rm -rf ./multiscat
+	rm -rf ./*.f
+	rm -rf ./*.f90
+	rm -rf ./Makefile
+	rm -rf ./*.6
+	rm -rf ./*.inc
+
+	#brings in the necessary files
 	cp ../multiscat.f90 ./multiscat.f90 
 	cp ../potsub.f90 ./potsub.f90 
 	cp ../scatsub.f ./scatsub.f 
@@ -24,10 +33,10 @@ do
 	cp ../FourierLabels.in ./FourierLabels.in 
 	cp ../Makefile ./Makefile
 	cp ../multiscat.inc ./multiscat.inc
-	# clears old compiled files and outputs
-	rm -rf ./*.o
-	rm -rf ./multiscat
-	rm -rf ./*.out
+
+	#Fixes the Windows carridge returns to allow files to be compared across operating systems
+	sed -i -e 's/\r$//' Result.out
+
 
 	printf '\n\nCleared directory for %s, rebuilding...\n\n' $dir
 	#re-compiles new files
@@ -48,15 +57,10 @@ do
 	    printf '##### WARNING: Test %s failed  #####\n' $dir
 	fi
 
-	# clears compiled files and outputs
+	#Remove compiled files
 	rm -rf ./*.o
 	rm -rf ./multiscat
-	rm -rf ./*.out
-	rm -rf ./*.in
-	rm -rf ./*.f
-	rm -rf ./*.f90
-	rm -rf ./Makefile
 	rm -rf ./*.6
-	rm -rf ./*.inc
+	# Return to parent directory
 	cd ./..
 done

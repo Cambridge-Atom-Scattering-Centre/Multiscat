@@ -115,3 +115,212 @@ subroutine potent(stepzmin,stepzmax,nzfixed,vfcfixed,nfc,vfc,m,z,ividx,ivflag)
   end do
 return
 end subroutine potent
+
+
+
+!*****************************************************************************
+!onedbasis - this is a version of the basis subroutine, modified for operation
+!            in one dimension, rather than two.  Also, code is converted to
+!            Fortran90 (cos fortran77 is crap.)
+!
+!c     
+!c     calculate reciprocal lattice, read in channels from chanfile,
+!c     calculate d (z-component of energy of outgoing wave) for 
+!c     each channel
+!c     
+!c     
+!c     area      = area of real space unit cell
+!c     
+!c     gax, gbx  = the unit vector of reciprocal lattice along symmetry 
+!c     direction
+!c     
+!c     gay, gby  = y components of unit vector of reciprocal lattice
+!c     along symmetry direction 2
+!c     
+!c     a1     length of real space lattice vector along axis
+!c     a2     x coordinate of other real space lattice vector
+!c     b2     y coordinate of other real space lattice vector
+!c     2
+!c                                    y|   _____a1_____ 
+!c     note that the a1,               |  /|          /
+!c     and b2 are the                  | / |b2       /
+!c     paramenters of the              |/__|________/____ x
+!c     unit cell of substrate           a2    
+!c     
+!c
+!c     For each scattered channel:
+!c     ered = square of incident wavevector for the channel
+!c     eint = squre of surface component of the wavevector for the 
+!c     channel
+!c     
+!c     -d(i) = square of the z component of the wavevector for the channel
+!c     energy conservation: ered = eint + (-d(i))
+!c     if d(i) < 0, channel open, possible diffraction spot
+!c     if d(i) > 0, channel closed, no spot
+!c     
+!
+! Note:
+! The format of the command has been left unchanged, so the main program is
+! virtually unaltered.
+
+
+
+subroutine onedbasis(d,ix,iy,n,n00,dmax,imax,iwrite,itest)
+      
+  implicit double precision (a-h,o-z)
+  include 'multiscat.inc'
+
+  character*20   chanfile
+  dimension      d(nmax), ix(nmax), iy(nmax)
+      
+  common /cells/ a1,a2,b2,ei,theta,phi,a0,gax,gay,gbx,gby
+  common /const/ rmlmda
+  DATA   Pi /3.141592653589793d0/
+      
+  if (itest.eq.1) print *, 'Calculating reciprocal lattice points (onedbasis).'
+  
+  !Old code, to allow for generally shaped 2d basis      
+  ax=a1
+  ay=0
+  bx=a2     !basis vector b is zero in one dimension
+  by=b2
+  Auc=dabs(ax*by)
+  RecUnit=2*Pi/Auc
+  gax =  by*RecUnit
+  gay = -bx*RecUnit
+  gbx = -ay*RecUnit
+  gby =  ax*RecUnit
+    
+  !Basis reciprocal lattice vectors are just 2pi/real space vectors, as
+  !unit cell only 1D now.
+  !ax=a1
+  !ay=0
+  !gax=2*Pi/ax
+  !gay=0
+      
+   
+  if (itest.eq.1) then
+    write(iwrite,'(a)') '# unit cell:'
+    write(iwrite,'(a,e14.6,a,e14.6,a)')'# real :(',ax,',',ay,')'
+    write(iwrite,'(a,e14.6,a,e14.6,a)')'#       (',bx,',',by,')'
+    write(iwrite,'(a,e14.6,a,e14.6,a)')'# recip:(',gax,',',gay,')'
+    write(iwrite,'(a,e14.6,a,e14.6,a)')'#       (',gbx,',',gby,')'
+  end if
+
+  !Convert incidence angle to radians for use
+  thetad = theta*pi/180.0d0
+  
+  !Calculate the momentum (?)
+  ered   = rmlmda*ei                          !scale energy of incident He
+  phid   = phi*pi/180.0d0 
+  !pkx = sqrt(ered)*sin(thetad)*cos(phid)
+  !pky = sqrt(ered)*sin(thetad)*sin(phid)
+  !pkx = sqrt(ered)*sin(thetad)                !
+  
+      
+  n=0
+  do i1 = -imax,imax
+    !do i2 = -imax,imax
+      !gx = gax*i1 + gbx*i2
+      !gy = gay*i1 + gby*i2
+      !eint = (pkx+gx)**2 + (pky+gy)**2
+      
+      gx = gax*i1
+      eint = (pkx+gx)**2
+      di = eint-ered
+      if (di.lt.dmax) then 
+        n=n+1
+        if (n.le.nmax) then
+          ix(n)=i1
+          !iy(n)=i2
+          d(n)=di
+          if (i1.eq.0) n00=n
+        else
+          stop 'ERROR: n too big! (subroutine onedbasis)'
+        end if
+      end if
+    !end do
+  end do
+      
+return
+end subroutine onedbasis
+         
+
+
+
+
+
+
+
+
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!onedoutput - Outputs the data to the screen in a more convenient format that
+!             the standard output (ie: suitable for sending to xmgr)
+!
+!             Outputs all diffractive scattering probabilities, along with
+!             the parallel momentum change
+
+subroutine onedoutput (ei,theta,phi,ix,iy,n,n00,d,p,nsf,iwrite,itest,a1,inumenergy)
+
+  implicit double precision (a-h,o-z)
+  dimension ix(n), iy(n), d(n), p(n)
+
+  !Define a sum, to calculate unitarity with
+  sum = 0.0d0
+  deltaG = 2.0d0*3.141592654d0/a1
+
+  if (itest.eq.1) then
+
+    print *, 'Storing scattering amplitudes to scattering.dat'
+    open (82,file='scattering.dat')
+
+    !Loop over channels, outputting data and adding to sum
+    do j = 1,n
+      jx = ix(j)
+      !jy = iy(j)
+      deltaK = dfloat(jx)*deltaG
+      if (d(j) .lt. 0.0d0) then
+        sum = sum + p(j)
+        !write (iwrite,602) deltaK,p(j),jx,jy
+        write (82,*) jx,deltaK,p(j)
+        print *, jx,deltaK,p(j)
+      endif
+    end do
+
+    close(82)
+
+    !Print out the unitarity indicator to check the calculation went OK
+    print *, 'Unitarity = ',sum
+
+  else
+    
+    vectork = (2.0*(ei/1000.0*1.602177d-19)*6.6465e-27/(1.054573d-34)**2.0)**0.5 / 1.0d10
+    specularG = -2.0*vectork*sin(abs(theta*3.141592654/180.0))
+
+    !Loop over channels, outputting data and adding to sum
+    do j = 1,n
+      jx = ix(j)
+      jy = iy(j)
+      deltaK = dfloat(jx)*deltaG
+      if (d(j) .lt. 0.0d0) then
+        sum = sum + p(j)
+        !if (abs(deltaK-specularG).lt.1.0) print *, ei,deltaK,jx,p(j),specularG
+        !if (abs(deltaK-specularG).lt.0.2) write (iwrite,'(F8.3,F9.5,I7,F9.5,F9.5)') ei,deltaK,jx,p(j),specularG
+        if (jx.eq.2*inumenergy) write (83,'(F10.5,F10.5,I7,F10.5)') ei,deltaK,jx,p(j)
+        if (jx.eq.2*inumenergy) write (6,'(F10.5,F10.5,I7,F10.5,F10.5)') ei,deltaK,jx,p(j)
+      endif
+    end do
+
+    !Print out the results
+    print *, 'Energy =',ei,' Unitarity = ',sum
+
+
+  end if
+
+  return
+
+!602  format (' ',i7,i6,e22.6)
+602  format (' ',e22.6,e22.6,i7,i6) 
+612  format (' #',37('-')/' #',5x,'Unitarity',e22.6/' #',1x,36('-'))
+
+end subroutine onedoutput

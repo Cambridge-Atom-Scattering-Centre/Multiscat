@@ -5,6 +5,7 @@
 !
 ! Converted to f90 free format 9th May 2001
 ! Further modified by fay summer 2009
+! Modified by F.Bello and E. Pierzchala summer 2020
 
 program multiscat
   implicit double precision (a-h,o-z)
@@ -65,9 +66,8 @@ program multiscat
   read (80,*) scattCondFile
   print *, 'Loading scattering conditions from ', scattCondFile
 
-  !Test: read and print the whole conditions file (please remove once done)
   open (81, file=scattCondFile)
-  read (81, *)!Skip the first line 
+  read (81, *)!Skip the first line of conditions file
 
   read (80,*) itest
   print *, 'Output mode = ',itest
@@ -121,10 +121,26 @@ program multiscat
   iwritel=11
   ireadip=12
 
-  !Label the fourier components-they are listed in 'FourierLabels' and appear in the same order as in the potential file
+  ! Checks that parameters don't clash
+  if (nfc .gt. nfcx) then 
+    print *, 'ERROR: the .conf file needs more fourier components', &
+    ' than allowed by the .inc file (nfc>nfcx)'
+    stop
+  else if (nzfixed .gt. NZFIXED_MAX) then !not sure what something is!
+    print *, 'ERROR: the .conf file needs more (something) than', &
+    ' allowed by the .inc file (nzfixed>NZFIXED_MAX)'
+    stop
+  else if (nfc .gt. NVFCFIXED_MAX) then !not sure what something is!
+    print *, 'ERROR: the .conf file needs more (something) than', &
+    ' allowed by the .inc file (nfc>NVFCFIXED_MAX)'
+    stop
+  end if
+
+  !Label the fourier components-they are listed in 'FourierLabels' and appear 
+  !in the same order as in the potential file
   open (98, file=fourierlabelsfile, status='old')
 
-  do i=1, nfc !this can be avoided with iostat (maybe), but nfc is needed anyway
+  do i=1, nfc 
      read (98,*)  ivx(i), ivy(i) 
      if  ((ivx(i).eq.0) .and. (ivy(i).eq.0)) nfc00=i
   end do
