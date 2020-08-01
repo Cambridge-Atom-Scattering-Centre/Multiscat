@@ -281,7 +281,6 @@ subroutine onedoutput (ei,theta,phi,ix,iy,n,n00,d,p,nsf,iwrite,itest,a1,inumener
       deltaK = dfloat(jx)*deltaG
       if (d(j) .lt. 0.0d0) then
         sum = sum + p(j)
-        !write (iwrite,602) deltaK,p(j),jx,jy
         write (82,*) jx,deltaK,p(j)
         print *, jx,deltaK,p(j)
       endif
@@ -318,9 +317,5 @@ subroutine onedoutput (ei,theta,phi,ix,iy,n,n00,d,p,nsf,iwrite,itest,a1,inumener
   end if
 
   return
-
-!602  format (' ',i7,i6,e22.6)
-602  format (' ',e22.6,e22.6,i7,i6) 
-612  format (' #',37('-')/' #',5x,'Unitarity',e22.6/' #',1x,36('-'))
 
 end subroutine onedoutput

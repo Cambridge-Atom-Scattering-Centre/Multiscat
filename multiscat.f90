@@ -28,7 +28,6 @@ program multiscat
   dimension d(nmax), e(mmax), f(mmax,nmax), t(mmax,mmax)
   dimension ividx(nfcx),ivflag(nfcx)
   dimension ctheta(ncmx),cphi(ncmx),cei(ncmx)
-  dimension A0w(npwx),B0w(npwx),vmw(npwx),apw(npwx),bpw(npwx)
   parameter (hbarsq = 4.18020)
   integer startindex,endindex !start and ending indexes of the potential files to be used 
   integer endOfFile

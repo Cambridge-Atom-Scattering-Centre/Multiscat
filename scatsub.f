@@ -185,6 +185,7 @@ c
          do 6 j = 1,i
             hh = 0.0d0
             do 5 k = 1,n
+               ! Is this where it takes the absolute value? 
                hh = hh + tt(k,i+1)*tt(k,j+1)
  5          continue
             t(i,j) = hh
@@ -197,34 +198,34 @@ c
 
 
       subroutine lobatto (a,b,n,w,x)
-      implicit double precision (a-h,o-z)
-c     
+      implicit double precision (a-h,o-z)   
 c     ----------------------------------------------------------------- 
 c     This subroutine calculates an n-point Gauss-Lobatto
 c     quadrature rule in the interval a < x < b.
 c     ----------------------------------------------------------------- 
 c     
       dimension w(n),x(n)
-c     A test of efficency
-      print *, n
 
 c     
       l = (n+1)/2
 c     Isn't pi defined above as a double ?!?!?!
       pi = acos(-1.0d0)
-c     ---See Docs/GaussianQuadrature.pdf, top of page 2
+c     ---<See Docs/GaussianQuadrature.pdf, top of page 2>
       shift = 0.5d0*(b+a)
       scale = 0.5d0*(b-a)
       weight = (b-a)/(n*(n-1))
-c     ---<end doc ref>
+
       x(1) = a
       w(1) = weight
       do 3 k = 2,l
-c     ---z is the kth zero of the (nth?) Legendre polynomial
+c     ---z is the kth zero of the derivative of the (n-1)th 
+c        Legendre polynomial. z is approximately the midpoint
+c        of 2 zeros of the Legendre polynomial (Tricomi approx.)
          z = cos(pi*(4*k-3)/(4*n-2))
-c     ---This section of code finds the correct z iteratively
+c     ---This section of code finds z iteratively
          do 2 i = 1,7
-c        --- Evaluates the (nth?) Legendre polynomial at z
+c        ---Evaluates the (n-1)th Legendre polynomial at z with an
+c           iterative method
             p2 = 0.0d0
             p1 = 1.0d0
             do 1 j = 1,n-1
@@ -232,18 +233,19 @@ c        --- Evaluates the (nth?) Legendre polynomial at z
                p2 = p1
                p1 = ((2*j-1)*z*p2-(j-1)*p3)/j
  1          continue
-c        ---<end doc ref?>
-c        ---Maybe this implements a Newton Raphson root finding?
-            p2 = (n-1)*(p2-z*p1)/(1.0d0-z*z)
-            p3 = (2.0d0*z*p2-n*(n-1)*p1)/(1.0d0-z*z)
-            z = z-p2/p3
-c        ---<end doc ref?>
+
+c        ---This implements a Newton Raphson root finder
+            p2 = (n-1)*(p2-z*p1)/(1.0d0-z*z) !derivative of p1
+            p3 = (2.0d0*z*p2-n*(n-1)*p1)/(1.0d0-z*z) !2nd derivative of p1
+            z = z-p2/p3 !Newton Raphson for zeros of p2
  2       continue
 c     ---z has been found
-c     ---See Docs/GaussianQuadrature.pdf, top of page 2
+c     ---Implements boundary rescales (-1, 1) --> (a, b)
+c        <See Docs/GaussianQuadrature.pdf, top of page 2>
          x(k) = shift-scale*z
          x(n+1-k) = shift+scale*z
-c     --- <end doc ref?>
+c     ---Evaluates the weight using the formula in 
+c        <See Docs/GaussianQuadrature.pdf, top of page 7>
          w(k) = weight/(p1*p1)
          w(n+1-k) = w(k)
  3    continue
@@ -506,10 +508,6 @@ c     yes!
 c
       !write (6,602) kount
       return
- 600  format(/1x,'GMRES(',i3,'):')
- 601  format(1x,'iteration  = ',i6,' error = ',1p,d10.2)
- 602  format(1x,'converged in ',i6,' iterations')
- 699  format(1x,'...try increasing l in subroutine GMRES.')
       end
 
       subroutine upper (x,m,ix,iy,n,vfc,ivx,ivy,nfc)

@@ -13,10 +13,14 @@ Solver:
 (where does gmres fit?)
 (what are we integrating?)
 
-Uses Lobatto rule to approximate integral ()
+Uses Gauss-Lobatto quadrature to approximate the integral 
+<see GaussianQuadrature.pdf, bottom of page 6>(author unkown)
 
-Lobatto needs to find roots of Legendre polynomial (we could use the monic Legendre polynomials):
-	-Uses Bonnet's recursion formula to evaluate the polynomials, 
-	see RecursiveLegendre.pdf (source: University of souther california CACS)
-	-To find the roots it uses Tricomi's approach 
-	-Followed by Newton Raphson ()
+Lobatto needs to find roots of Legendre polynomial's drivative:
+	-Roots of the derivative are approximately half way between sucessive roots of the polynomial
+	-To find the roots it uses Tricomi's approach
+	-Uses Bonnet's recursion formula to evaluate the Legendre polynomials
+	-Uses the differential equations that define Legendre polynomials to find derivatives
+	-Uses Newton Raphson root finding the zeros of the derivative
+	 (these are the x values needed for Lobatto quadrature rule)
+	-Evaluates wheights to be used at each point <see GaussianQuadrature.pdf, bottom of page 6>

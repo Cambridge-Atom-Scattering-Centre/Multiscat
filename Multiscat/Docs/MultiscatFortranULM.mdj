@@ -5770,6 +5770,7 @@
 								"$ref": "AAAAAAFza6MgTc+7jz0="
 							},
 							"name": "lobatto",
+							"documentation": "Used in the Gauss-Lobatto quadrature . \n\nTakes as inputs the bounds of the integration range (a and b) and the order of the order of the quadrature (n).\n\nReturns the points at which to evaluate the function (x) and the wheight to assign to each point (w) as arrays.",
 							"parameters": [
 								{
 									"_type": "UMLParameter",
@@ -7316,9 +7317,9 @@
 										"$ref": "AAAAAAFzcRhbKblUxd0="
 									},
 									"font": "Arial;13;0",
-									"left": 66.58642578125,
+									"left": 70.97900390625,
 									"top": 10,
-									"width": 138.185546875,
+									"width": 152.74072265625,
 									"height": 13,
 									"text": "FortranMultiscatSequence"
 								},
@@ -7331,7 +7332,7 @@
 									"font": "Arial;13;1",
 									"left": 5,
 									"top": 10,
-									"width": 56.58642578125,
+									"width": 60.97900390625,
 									"height": 13,
 									"text": "interaction"
 								}
