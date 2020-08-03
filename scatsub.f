@@ -202,11 +202,21 @@ c
 c     ----------------------------------------------------------------- 
 c     This subroutine calculates an n-point Gauss-Lobatto
 c     quadrature rule in the interval a < x < b.
+c
+c     Function localizes zeros of the derivative of n-1 th Legendre 
+c	  polynomial and calculates associated weights.
+c
+c	  All recursive formulas are on Wikipedia except for P[n]''
+c	  but it can be derived using others
+c
 c     ----------------------------------------------------------------- 
 c     
       dimension w(n),x(n)
-
-c     
+  
+c	  shift and scale have to be used to change integral in (a,b)
+c	  to (-1,1) where lobatto quadrature works.
+c	  I denote n-th Legendre polynomial as P[n] and its derivative as P[n]'
+c
       l = (n+1)/2
 c     Isn't pi defined above as a double ?!?!?!
       pi = acos(-1.0d0)
@@ -215,17 +225,20 @@ c     ---<See Docs/GaussianQuadrature.pdf, top of page 2>
       scale = 0.5d0*(b-a)
       weight = (b-a)/(n*(n-1))
 
+      
+c 	  Specific to Lobatto quadrature, First point is a
       x(1) = a
       w(1) = weight
+      
       do 3 k = 2,l
-c     ---z is the kth zero of the derivative of the (n-1)th 
-c        Legendre polynomial. z is approximately the midpoint
-c        of 2 zeros of the Legendre polynomial (Tricomi approx.)
+c	  As zeros are symmetric, there is only need to find positive ones
+c	  z is approximated zero of P[n-1] using Francesco Tricomi approximation
+c	  then accuracy of the zero is improved using Newton-Raphson
+c	  few times ( arbitrary so far )
          z = cos(pi*(4*k-3)/(4*n-2))
-c     ---This section of code finds z iteratively
+c	  	 Calculate value of P[n-1] at z using Bonnets recursive formula
+c		 p1 is P[j], p2 = P[j-1], p3 = P[j-2]
          do 2 i = 1,7
-c        ---Evaluates the (n-1)th Legendre polynomial at z with an
-c           iterative method
             p2 = 0.0d0
             p1 = 1.0d0
             do 1 j = 1,n-1
@@ -233,22 +246,22 @@ c           iterative method
                p2 = p1
                p1 = ((2*j-1)*z*p2-(j-1)*p3)/j
  1          continue
-
-c        ---This implements a Newton Raphson root finder
-            p2 = (n-1)*(p2-z*p1)/(1.0d0-z*z) !derivative of p1
-            p3 = (2.0d0*z*p2-n*(n-1)*p1)/(1.0d0-z*z) !2nd derivative of p1
-            z = z-p2/p3 !Newton Raphson for zeros of p2
+c	 		p2 gets overwritten to be P[n-1]'
+            p2 = (n-1)*(p2-z*p1)/(1.0d0-z*z)
+c 	 		p3 gets overwritten to be P[n-1]''
+            p3 = (2.0d0*z*p2-n*(n-1)*p1)/(1.0d0-z*z)
+c	 		Actual Newton-Raphson step
+            z = z-p2/p3
  2       continue
-c     ---z has been found
-c     ---Implements boundary rescales (-1, 1) --> (a, b)
-c        <See Docs/GaussianQuadrature.pdf, top of page 2>
+c	 	 Write in shifted and scaled zeros and weights
          x(k) = shift-scale*z
+c  	 	 Write in zero with other sign
          x(n+1-k) = shift+scale*z
-c     ---Evaluates the weight using the formula in 
-c        <See Docs/GaussianQuadrature.pdf, top of page 7>
+c	 	 Write in weights (they are always positive)
          w(k) = weight/(p1*p1)
          w(n+1-k) = w(k)
  3    continue
+c	  Specific to Lobatto quadrature, last point is b
       x(n) = b
       w(n) = weight
       return
