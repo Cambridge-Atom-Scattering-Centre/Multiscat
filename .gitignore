@@ -20,3 +20,6 @@ Test*/*
 #Also include Multiscat.conf and Result.out in the tests
 !Test*/Result.out
 !Test*/Multiscat.conf
+
+#Ignore Mac OS files
+*.DS_Store
