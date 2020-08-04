@@ -164,22 +164,22 @@ c	  No idea why it's done
          do 3 j = 1,n
 c			tt(i,i) is trivially = 0, so no need for loops       
             if (j .eq. i) go to 3
-c			gg will be value of derivative of i-th L.s. function at
-c			j-th root, which is: i-th L.s. function evaluated at j-th
+c			gg will be value of derivative of j-th L.s. function at
+c			i-th root, which is: i-th L.s. function evaluated at j-th
 c			root divided by ( i-th root minus j-th root )
             gg = 1.0d0/(xx(i)-xx(j))
             ff = ff+gg
             
             do 2 k = 1,n
             
-c			   This loop multiplies gg defined above by i-th L.s. 
-c			   function evaluated at j-th root, which is itself a Lagrangian interpolation
+c			   This loop multiplies gg defined above by j-th L.s. 
+c			   function evaluated at i-th root, which is itself a Lagrangian interpolation
                if (k.eq.j .or. k.eq.i) go to 2
                gg = gg*(xx(j)-xx(k))/(xx(i)-xx(k))
                
  2          continue
-c			Write into tt value of derivative of i-th L.s. function
-c			evaluated at j-th root. This relation is described in the paper mentioned
+c			Write into tt value of derivative of j-th L.s. function
+c			evaluated at i-th root. This relation is described in the paper mentioned
             tt(j,i) = ww(j)*gg/ww(i)   
             
  3       continue
@@ -201,7 +201,7 @@ c		 increasing order so this has to be done manually
             do 5 k = 1,n
 c			   Entries in T matrix are defined as a sum over all k from 0 
 c           to n+1 of: 
-c           [ k-th weight ]*[ derivative 
+c          	   [ k-th weight ]*[ derivative 
 c			   of i-th L.s. function at k-th root ] *[ derivative 
 c			   of j-th L.s. function at k-th root ]
 
