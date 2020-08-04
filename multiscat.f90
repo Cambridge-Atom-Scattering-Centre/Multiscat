@@ -173,11 +173,11 @@ program multiscat
         !print *, ei, theta, phi
           
         !find number of z values required
-        call findmz (emax,vmin,nsf,zmin,zmax,m,itest)
+        call findmz (emax,vmin,nsf,zmin,zmax,m)
         if (itest.eq.1) write(21,*) 'Required number of z grid points, m = ',m
         if (m.gt.mmax) stop 'ERROR: m too big!'
         !calculation kinetic enery matrix (possibly?)    
-        call tshape (zmin,zmax,m,w,z,t,itest)
+        call tshape (zmin,zmax,m,w,z,t)
       
         !interpolate vfcs to required z positions
         call potent(stepzmin,stepzmax,nzfixed,vfcfixed,nfc,vfc,m,z,ividx,ivflag,ivx)

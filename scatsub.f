@@ -3,7 +3,7 @@ c     SCATTERING SUBROUTINES FOR INTERPOED VERSION
 c     --------------------------------------------------------------
 c     
       
-      subroutine findmz (emax,vmin,nsf,zmin,zmax,mz,itest)
+      subroutine findmz (emax,vmin,nsf,zmin,zmax,mz)
       implicit double precision (a-h,o-z)
       
 c     ----------------------------------------------------------------- 
@@ -27,7 +27,6 @@ c     -----------------------------------------------------------------
       common /const/ rmlmda
       DATA   Pi /3.141592653589793d0/
 
-c      if (itest.eq.1) print *, 'Finding num of z values (sub findmz)'
 
       em = emax+dabs(vmin)
       pz = sqrt(rmlmda*em)
@@ -39,7 +38,7 @@ c      if (itest.eq.1) print *, 'Finding num of z values (sub findmz)'
       end subroutine findmz
       
 
-      subroutine basis(d,ix,iy,n,n00,dmax,imax,iwrite,itest)
+      subroutine basis(d,ix,iy,n,n00,dmax,imax,iwrite)
       implicit double precision (a-h,o-z)
 c     
 c     calculate reciprocal lattice, read in channels from chanfile,
@@ -83,9 +82,7 @@ c
       common /cells/ a1,a2,b2,ei,theta,phi,a0,gax,gay,gbx,gby
       common /const/ rmlmda
       DATA   Pi /3.141592653589793d0/
-      
-c      write (iwrite,*) '*** subroutine basis ***'
-c       write(*,*) rmlmda       
+           
       ax=a1
       ay=0
       bx=a2
@@ -97,16 +94,7 @@ c       write(*,*) rmlmda
       gay = -bx*RecUnit
       gbx = -ay*RecUnit
       gby =  ax*RecUnit
-c      write(*,*) gax, gay, gbx, gby
-      
-!      if (itest.eq.1) then
-!         write(iwrite,'(a)') '# unit cell:'
-!         write(iwrite,'(a,e14.6,a,e14.6,a)')'# real :(',ax,',',ay,')'
-!         write(iwrite,'(a,e14.6,a,e14.6,a)')'#       (',bx,',',by,')'
-!         write(iwrite,'(a,e14.6,a,e14.6,a)')'# recip:(',gax,',',gay,')'
-!         write(iwrite,'(a,e14.6,a,e14.6,a)')'#       (',gbx,',',gby,')'
-!      end if
-!      write(*,*) rmlmda
+
       ered   = rmlmda*ei
       thetad = theta*pi/180.0d0
       phid   = phi*pi/180.0d0 
@@ -149,12 +137,9 @@ c     in a normalised Lobatto shape function basis.
 c     -----------------------------------------------------------------  
 c     
       dimension w(m),x(m),t(m,m)
-c     
-      !parameter (mmax = 200) 
+c      
       dimension ww(mmax+1),xx(mmax+1),tt(mmax+1,mmax+1)
       if (m .gt. mmax) stop 'tshape 1'
-c     
-!      if (itest.eq.1) print *, 'Calculating z values (sub tshape)'
 
       n = m+1
       call lobatto (a,b,n,ww,xx)
@@ -178,9 +163,6 @@ c
       do 7 i = 1,m
          w(i) = ww(i+1)
          x(i) = xx(i+1)
-         
-         !Look at the z matrix values
-         !print*, x(i)
 
          do 6 j = 1,i
             hh = 0.0d0
@@ -306,28 +288,26 @@ c     ------------------------------------------------------------------
 c
       complex*16 vfc(m,nfc)
       dimension d(n), e(m), f(m,n), t(m,m)
-c
-      !parameter (mmax = 200)
+
       dimension g(mmax)
       if (m .gt. mmax) stop 'precon 1'
 c
-                do k = 1,m
-    	    !t(k,k) = t(k,k)+real(vfc(k,nfc00))
-             t(k,k) = t(k,k)+dble(vfc(k,nfc00))
-         enddo
-         do k=1,m
-            enddo
-	 call rs (m,m,t,e,t,f,ierr)
-         if (ierr .ne. 0) stop 'precon 2' 
+      do k = 1,m
+         t(k,k) = t(k,k)+dble(vfc(k,nfc00))
+      enddo
+      do k=1,m
+      enddo
+      call rs (m,m,t,e,t,f,ierr)
+      if (ierr .ne. 0) stop 'precon 2' 
       do j = 1,n
          do k = 1,m
             g(k) = t(m,k)/(d(j)+e(k))
-	    f(k,j) = 0.0d0
-                     enddo
+            f(k,j) = 0.0d0
+         enddo
          do i = 1,m
-	    do k = 1,m
+            do k = 1,m
                f(k,j) = f(k,j)+t(k,i)*g(i)
-                           enddo
+            enddo
          enddo
       enddo
       return
@@ -519,7 +499,6 @@ c
 c
 c     yes!
 c
-      !write (6,602) kount
       return
       end
 
@@ -647,17 +626,16 @@ c     -------------------------------------------------------------------
 c
       dimension ix(n), iy(n), d(n), p(n)
       sum = 0.0d0
-c      write(*,*) p(n00)
       if (itest.eq.1) then
       write (21,601) ei,theta,phi
       endif 
       do j = 1,n
-	 jx = ix(j)
+         jx = ix(j)
          jy = iy(j)
          if (d(j) .lt. 0.0d0) then
             sum = sum + p(j)
             if (itest.eq.1) then
-            write (21,602) jx,jy,p(j)
+               write (21,602) jx,jy,p(j)
             endif
          endif
       end do
