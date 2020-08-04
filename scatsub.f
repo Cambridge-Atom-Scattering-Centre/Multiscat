@@ -135,10 +135,13 @@ c     -----------------------------------------------------------------
 c     This subroutine calculates the kinetic energy matrix, T, 
 c     in a normalised Lobatto shape function basis.
 c
-c	  Formula for this are taken from: D. E. Manolopoulos and R. E. Wyatt, 
+c	  Formula for this are taken from: 
+c    "QUANTUM SCATTERING VIA THE LOG DERIVATIVE VERSION
+c    OF THE KOHN VARIATIONAL PRINCIPLE" 
+c    D. E. Manolopoulos and R. E. Wyatt, 
 c	  Chem. Phys. Lett., 1988, 152,23
 c
-c	  In that paper Lobatto shape functions are defined
+c	  In that paper Lobatto shape (L.s.) functions are defined
 c     -----------------------------------------------------------------  
 c     
       dimension w(m),x(m),t(m,m)
@@ -146,7 +149,7 @@ c
       dimension ww(mmax+1),xx(mmax+1),tt(mmax+1,mmax+1)
       if (m .gt. mmax) stop 'tshape 1'
 
-c	  I think, that this is needed for the sum defined in Lobatto Shape functions to work
+c	  I think, that this is needed for the sum defined in L.S. functions to work
       n = m+1
 c	  Get points and weights for n point Lobatto quadrature in (a,b)
       call lobatto (a,b,n,ww,xx)
@@ -159,28 +162,28 @@ c	  No idea why it's done
       do 4 i = 1,n
          ff = 0.0d0
          do 3 j = 1,n
-c			tt(i,i) is different       
+c			tt(i,i) is trivially = 0, so no need for loops       
             if (j .eq. i) go to 3
-c			gg will be value of derivative of i-th Lobatto shape function at
-c			j-th root, which is: i-th Lobatto shape function evaluated at j-th
+c			gg will be value of derivative of i-th L.s. function at
+c			j-th root, which is: i-th L.s. function evaluated at j-th
 c			root divided by ( i-th root minus j-th root )
             gg = 1.0d0/(xx(i)-xx(j))
             ff = ff+gg
             
             do 2 k = 1,n
             
-c			   This loop multiplies gg defined above by i-th Lobatto shape 
+c			   This loop multiplies gg defined above by i-th L.s. 
 c			   function evaluated at j-th root, which is itself a Lagrangian interpolation
                if (k.eq.j .or. k.eq.i) go to 2
                gg = gg*(xx(j)-xx(k))/(xx(i)-xx(k))
                
  2          continue
-c			Write into tt value of derivative of i-th Lobatto shape function
+c			Write into tt value of derivative of i-th L.s. function
 c			evaluated at j-th root. This relation is described in the paper mentioned
             tt(j,i) = ww(j)*gg/ww(i)   
             
  3       continue
-c		 tt of i,i seems to be 0?
+c		 tt of i,i is 0 as the i-th L.s. has a maximum at the i-th root
          tt(i,i) = ff
          
  4    continue
@@ -196,8 +199,9 @@ c		 increasing order so this has to be done manually
          
             hh = 0.0d0
             do 5 k = 1,n
-               ! Is this where it takes the absolute value? 
-c			   Entries in T matrix are defined as [ k-th weight ]*[ derivative 
+c			   Entries in T matrix are defined as a sum over all k from 0 
+c           to n+1 of: 
+c           [ k-th weight ]*[ derivative 
 c			   of i-th L.s. function at k-th root ] *[ derivative 
 c			   of j-th L.s. function at k-th root ]
 
@@ -252,7 +256,8 @@ c 	  Specific to Lobatto quadrature, First point is a
 c	  As zeros are symmetric, there is only need to find positive ones
 c	  z is approximated zero of P[n-1] using Francesco Tricomi approximation
 c	  then accuracy of the zero is improved using Newton-Raphson
-c	  few times ( arbitrary so far )
+c	  few times ( arbitrary so far ). The cosine equation finds a point
+c    roughly halfway between 2 zeros of P[n].
          z = cos(pi*(4*k-3)/(4*n-2))
 c	  	 Calculate value of P[n-1] at z using Bonnets recursive formula
 c		 p1 is P[j], p2 = P[j-1], p3 = P[j-2]
