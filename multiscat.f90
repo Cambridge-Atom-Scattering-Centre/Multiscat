@@ -183,7 +183,7 @@ program multiscat
         call potent(stepzmin,stepzmax,nzfixed,vfcfixed,nfc,vfc,m,z,ividx,ivflag,ivx)
     
         !get reciprocal lattice points    (also calculate how many channels are required for the calculation) 
-        call basis(d,ix,iy,n,n00,dmax,imax,iwrite,itest)
+        call basis(d,ix,iy,n,n00,dmax,imax)
         if (itest.eq.1) write(21,*) 'Number of diffraction channels, n =',n
         if (n.gt.nmax) stop 'ERROR: n too big!'
     

@@ -32,22 +32,18 @@ c     -----------------------------------------------------------------
       pz = sqrt(rmlmda*em)
       wz = 2.0d0*Pi/pz
       mz = (2.75d0+0.125d0*nsf)*(zmax-zmin)/wz+1
+      print *, 'mz = ', mz, ', setting mz = 550'
       mz = 550
-      print *, 'Setting mz = 550'
       return
       end subroutine findmz
       
 
-      subroutine basis(d,ix,iy,n,n00,dmax,imax,iwrite)
+      subroutine basis(d,ix,iy,n,n00,dmax,imax)
       implicit double precision (a-h,o-z)
 c     
-c     calculate reciprocal lattice, read in channels from chanfile,
-c     [DOCUMENTATION ERROR: chanfile was made redundant a long time ago]
+c     calculate reciprocal lattice
 c     calculate d (z-component of energy of outgoing wave) for 
 c     each channel
-c     
-c     
-c     area      = area of real space unit cell
 c     
 c     gax, gbx  = the unit vector of reciprocal lattice along symmetry 
 c     direction
@@ -98,6 +94,7 @@ c
       ered   = rmlmda*ei
       thetad = theta*pi/180.0d0
       phid   = phi*pi/180.0d0 
+      ! (?)
       pkx = sqrt(ered)*sin(thetad)*cos(phid)
       pky = sqrt(ered)*sin(thetad)*sin(phid)
       

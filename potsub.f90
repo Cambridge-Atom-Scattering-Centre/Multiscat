@@ -13,7 +13,7 @@
 ! Fortran representation is used - (a, b) - where a is the real part and b is the 
 ! imaginary part.  A total of nzfixed*nfcfixed lines should be present, produced 
 ! by the matlab script 'four.m'
-! DOCUMENTATION ERROR: 'four.m' seems to be dpricated, it is now 'multiscat.m'
+! DOCUMENTATION ERROR: 'four.m' seems to be depricated, it is now 'multiscat.m'
 ! All z values are sequential, that is each whole basis function data is together,
 ! going from minimum z to maximum z, before progressing to the next FC.
 
@@ -72,7 +72,7 @@ subroutine potent(stepzmin,stepzmax,nzfixed,vfcfixed,nfc,vfc,m,z,ividx,ivflag)
  !generate vfc matrix by interpolation of vfcfixed
 
   do i=1,nfc                                ! loop over fourier components
-  
+
     do j=1,m                                ! loop over reqested points
       
       ! Locate what would be the index in the list of z points
