@@ -127,7 +127,7 @@ c
       end subroutine basis
          
       
-      subroutine tshape (a,b,m,w,x,t,itest)
+      subroutine tshape (a,b,m,w,x,t)
       implicit double precision (a-h,o-z)
       include 'multiscat.inc'
 c     
@@ -136,9 +136,9 @@ c     This subroutine calculates the kinetic energy matrix, T,
 c     in a normalised Lobatto shape function basis.
 c
 c	  Formula for this are taken from: 
-c    "QUANTUM SCATTERING VIA THE LOG DERIVATIVE VERSION
-c    OF THE KOHN VARIATIONAL PRINCIPLE" 
-c    D. E. Manolopoulos and R. E. Wyatt, 
+c     "QUANTUM SCATTERING VIA THE LOG DERIVATIVE VERSION
+c     OF THE KOHN VARIATIONAL PRINCIPLE" 
+c     D. E. Manolopoulos and R. E. Wyatt, 
 c	  Chem. Phys. Lett., 1988, 152,23
 c
 c	  In that paper Lobatto shape functions (Lsf) are defined
@@ -162,7 +162,7 @@ c	  No idea why it's done
       do 4 i = 1,n
          ff = 0.0d0
          do 3 j = 1,n
-c			tt(i,i) is trivially = 0, so no need for loops       
+c			gg of i = j is trivially = 0, so no need for loops       
             if (j .eq. i) go to 3
 c			gg will be value of derivative of i-th Lsf at
 c			j-th root, which is: i-th Lsf evaluated at j-th
@@ -172,8 +172,8 @@ c			root divided by ( i-th root minus j-th root )
             
             do 2 k = 1,n
             
-c			   This loop multiplies gg defined above by i-th L.s. 
-c			   function evaluated at j-th root, which is itself a Lagrangian interpolation
+c			   This loop multiplies gg defined above by i-th Lsf
+c			   evaluated at j-th root, which is itself a Lagrangian interpolation
                if (k.eq.j .or. k.eq.i) go to 2
                gg = gg*(xx(j)-xx(k))/(xx(i)-xx(k))
                
@@ -181,9 +181,10 @@ c			   function evaluated at j-th root, which is itself a Lagrangian interpolati
 c			Write into tt value of derivative of i-th Lsf
 c			evaluated at j-th root. This relation is described in the paper mentioned
             tt(j,i) = ww(j)*gg/ww(i)   
+c           this appears wrong going by the given paper 
             
  3       continue
-c		 tt of i,i is 0 as the i-th L.s. has a maximum at the i-th root
+c		 tt of i,i is 0 as the i-th Lsf has a maximum at the i-th root, unless i=1 or i=n
          tt(i,i) = ff
          
  4    continue

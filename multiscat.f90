@@ -158,7 +158,7 @@ program multiscat
       
   !========Initialize the potential================================================
   
-    call loadfixedpot(nzfixed,nfc,vfcfixed,fourierfile,itest)
+    call loadfixedpot(nzfixed,nfc,vfcfixed,fourierfile)
     !this will read in the potential Fourier components and convert to the program units
   
   !========Do the scaterring calculations=========================================
