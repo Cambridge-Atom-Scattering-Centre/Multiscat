@@ -13,10 +13,11 @@
 ! Fortran representation is used - (a, b) - where a is the real part and b is the 
 ! imaginary part.  A total of nzfixed*nfcfixed lines should be present, produced 
 ! by the matlab script 'four.m'
+! DOCUMENTATION ERROR: 'four.m' seems to be depricated, it is now 'multiscat.m'
 ! All z values are sequential, that is each whole basis function data is together,
 ! going from minimum z to maximum z, before progressing to the next FC.
 
-subroutine loadfixedpot(nzfixed,nfc,vfcfixed,fourierfile,itest)
+subroutine loadfixedpot(nzfixed,nfc,vfcfixed,fourierfile)
 
   implicit double precision (a-h,o-z)
   include 'multiscat.inc'
@@ -24,19 +25,15 @@ subroutine loadfixedpot(nzfixed,nfc,vfcfixed,fourierfile,itest)
   integer        i,j                               !loop indecies
   integer        nzfixed                             !number of z values in fixed fourier components
   integer        nfc                           !number of fourier components
-  integer        itest                               !Test mode 1=yes, 0=no
   complex*16     vfcfixed(NZFIXED_MAX,NVFCFIXED_MAX) !Fixed Fourier component data
   character*40   fourierfile                         !Fourier component data file                          
   common /const/rmlmda
 
-
-  !print up an indicator that this subroutine has been called
-  !if (itest.eq.1) print *, 'Loading fcs (loadfixedpot) (',nzfixed,',',nvfc_xfix*nvfc_yfix,')'
-
-
-  !open the data file and read in the fourier components (1 DC component + nvfcfixed fourier components)
+  ! Initiates the fourier components as a matrix of zeros
   vfcfixed=0.0d0
+  !open the data file and read in the fourier components (1 DC component + nvfcfixed fourier components)
   open(20,file=fourierfile)
+  !discard the first 5 lines
   read(20,*)
   read(20,*)
   read(20,*)
@@ -47,7 +44,7 @@ subroutine loadfixedpot(nzfixed,nfc,vfcfixed,fourierfile,itest)
     do j=1,nzfixed     !loop over z values in fourier components
       read (20,*) vfcfixed(j,i)
     end do
-end do
+  end do
 
   !Scale to the program units
   vfcfixed = vfcfixed * rmlmda
@@ -66,7 +63,6 @@ subroutine potent(stepzmin,stepzmax,nzfixed,vfcfixed,nfc,vfc,m,z,ividx,ivflag)
   include 'multiscat.inc'
 
   complex*16 vfc(m,nfc)                          ! requested fourier cmpts
-  !complex*16 vfcfixed(nzfixed, nvfcfixed)        ! fixed fourier cmpts
   complex*16 vfcfixed(NZFIXED_MAX,NVFCFIXED_MAX)
   dimension z(m)                                 ! requested z points (m=num z points)
   dimension ividx(nfc), ivflag(nfc)
@@ -76,39 +72,28 @@ subroutine potent(stepzmin,stepzmax,nzfixed,vfcfixed,nfc,vfc,m,z,ividx,ivflag)
  !generate vfc matrix by interpolation of vfcfixed
 
   do i=1,nfc                                ! loop over fourier components
-    
-   ! k=ividx(i)                              ! get which fixed component
-     k=i                                        ! k is the fixed point reference
+
     do j=1,m                                ! loop over reqested points
       
       ! Locate what would be the index in the list of z points
       zindex = (z(j)-stepzmin)/(stepzmax-stepzmin)*(nzfixed-1)+1
-      indexlow=int(zindex)                       ! truncate to integer
+      indexlow=int(zindex)               ! truncate to integer
       
       ! Pick out the value we are interested in
       if (zindex.eq.indexlow) then
 !        ! have got exact value - no need to interpolate
-        vfc(j,i) = vfcfixed(indexlow,k)
-        !vfc(j,i)=vfcfixed(indexlow,i)
+        vfc(j,i) = vfcfixed(indexlow,i)
       else
-        ! need to interpolate - interpolate real and imaginary parts separately
+        ! need to interpolate - interpolate real and imaginary parts separately (does it?)
         
         ! Interpolate potential
-        atmp = vfcfixed(indexlow,k)
-        !atmp = vfcfixed(indexlow,i)
-        btmp = vfcfixed(indexlow+1,k)
-!btmp = vfcfixed(indexlow+1,i)
+        atmp = vfcfixed(indexlow,i)
+        btmp = vfcfixed(indexlow+1,i)
         vrealtmp = atmp + (btmp-atmp) * (zindex-dfloat(indexlow))
         
         ! Store for use
         vfc(j,i) = vrealtmp
-!         vfc(j,i)=vfcfixed(j,i)
       end if
-      
-      ! Make sure the complex part is the 'right way around'
-!      if (ivflag(i).eq.-1) then
-!        vfc(j,i) = conjg(vfc(j,i))
-!      end if
 
     end do
   

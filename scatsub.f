@@ -32,22 +32,18 @@ c     -----------------------------------------------------------------
       pz = sqrt(rmlmda*em)
       wz = 2.0d0*Pi/pz
       mz = (2.75d0+0.125d0*nsf)*(zmax-zmin)/wz+1
+      print *, 'mz = ', mz, ', setting mz = 550'
       mz = 550
-      print *, 'Setting mz = 550'
       return
       end subroutine findmz
       
 
-      subroutine basis(d,ix,iy,n,n00,dmax,imax,iwrite)
+      subroutine basis(d,ix,iy,n,n00,dmax,imax)
       implicit double precision (a-h,o-z)
 c     
-c     calculate reciprocal lattice, read in channels from chanfile,
-c     [DOCUMENTATION ERROR: chanfile was made redundant a long time ago]
+c     calculate reciprocal lattice
 c     calculate d (z-component of energy of outgoing wave) for 
 c     each channel
-c     
-c     
-c     area      = area of real space unit cell
 c     
 c     gax, gbx  = the unit vector of reciprocal lattice along symmetry 
 c     direction
@@ -98,6 +94,7 @@ c
       ered   = rmlmda*ei
       thetad = theta*pi/180.0d0
       phid   = phi*pi/180.0d0 
+      ! (?)
       pkx = sqrt(ered)*sin(thetad)*cos(phid)
       pky = sqrt(ered)*sin(thetad)*sin(phid)
       
@@ -127,7 +124,7 @@ c
       end subroutine basis
          
       
-      subroutine tshape (a,b,m,w,x,t,itest)
+      subroutine tshape (a,b,m,w,x,t)
       implicit double precision (a-h,o-z)
       include 'multiscat.inc'
 c     
@@ -136,12 +133,12 @@ c     This subroutine calculates the kinetic energy matrix, T,
 c     in a normalised Lobatto shape function basis.
 c
 c	  Formula for this are taken from: 
-c    "QUANTUM SCATTERING VIA THE LOG DERIVATIVE VERSION
-c    OF THE KOHN VARIATIONAL PRINCIPLE" 
-c    D. E. Manolopoulos and R. E. Wyatt, 
+c     "QUANTUM SCATTERING VIA THE LOG DERIVATIVE VERSION
+c     OF THE KOHN VARIATIONAL PRINCIPLE" 
+c     D. E. Manolopoulos and R. E. Wyatt, 
 c	  Chem. Phys. Lett., 1988, 152,23
 c
-c	  In that paper Lobatto shape (L.s.) functions are defined
+c	  In that paper Lobatto shape functions (Lsf) are defined
 c     -----------------------------------------------------------------  
 c     
       dimension w(m),x(m),t(m,m)
@@ -149,7 +146,7 @@ c
       dimension ww(mmax+1),xx(mmax+1),tt(mmax+1,mmax+1)
       if (m .gt. mmax) stop 'tshape 1'
 
-c	  I think, that this is needed for the sum defined in L.S. functions to work
+c	  I think, that this is needed for the sum defined in Lsf to work
       n = m+1
 c	  Get points and weights for n point Lobatto quadrature in (a,b)
       call lobatto (a,b,n,ww,xx)
@@ -162,28 +159,32 @@ c	  No idea why it's done
       do 4 i = 1,n
          ff = 0.0d0
          do 3 j = 1,n
-c			tt(i,i) is trivially = 0, so no need for loops       
+c			gg of i = j is trivially = 0, so no need for loops       
             if (j .eq. i) go to 3
-c			gg will be value of derivative of j-th L.s. function at
-c			i-th root, which is: i-th L.s. function evaluated at j-th
+
+c			gg will be value of derivative of j-th Lsf at
+c			i-th root, which is: i-th Lsf evaluated at j-th
 c			root divided by ( i-th root minus j-th root )
             gg = 1.0d0/(xx(i)-xx(j))
             ff = ff+gg
             
             do 2 k = 1,n
             
-c			   This loop multiplies gg defined above by j-th L.s. 
-c			   function evaluated at i-th root, which is itself a Lagrangian interpolation
+c			   This loop multiplies gg defined above by j-th Lsf
+c			   evaluated at i-th root, which is itself a Lagrangian interpolation
                if (k.eq.j .or. k.eq.i) go to 2
                gg = gg*(xx(j)-xx(k))/(xx(i)-xx(k))
                
  2          continue
-c			Write into tt value of derivative of j-th L.s. function
+
+c			Write into tt value of derivative of j-th Lsf
 c			evaluated at i-th root. This relation is described in the paper mentioned
+
             tt(j,i) = ww(j)*gg/ww(i)   
+c           this appears wrong going by the given paper 
             
  3       continue
-c		 tt of i,i is 0 as the i-th L.s. has a maximum at the i-th root
+c		 tt of i,i is 0 as the i-th Lsf has a maximum at the i-th root, unless i=1 or i=n
          tt(i,i) = ff
          
  4    continue
@@ -201,9 +202,10 @@ c		 increasing order so this has to be done manually
             do 5 k = 1,n
 c			   Entries in T matrix are defined as a sum over all k from 0 
 c           to n+1 of: 
-c          	   [ k-th weight ]*[ derivative 
-c			   of i-th L.s. function at k-th root ] *[ derivative 
-c			   of j-th L.s. function at k-th root ]
+
+c           [ k-th weight ]*[ derivative 
+c			   of i-th Lsf at k-th root ] *[ derivative 
+c			   of j-th Lsf at k-th root ]
 
                hh = hh + tt(k,i+1)*tt(k,j+1)
  5          continue
