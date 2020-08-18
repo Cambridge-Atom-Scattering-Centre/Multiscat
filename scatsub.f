@@ -345,12 +345,6 @@ c		 They overwrite t to br H0 as in '90 kohn paper ?
          t(k,k) = t(k,k) + dble(vfc(k,nfc00))
       enddo
 
-c Commented out 13/08/2020, pretty sure can be deleted safely
-c======================      
-c      do k=1,m
-c      enddo
-c======================
-
 c	  get eigenvalues [e] and eigenvectors [ overwrite them on t] of t, 
 c	  which is m x m symmetric real matrix. f is temporary storage array
       call rs (m,m,t,e,t,f,ierr)     
