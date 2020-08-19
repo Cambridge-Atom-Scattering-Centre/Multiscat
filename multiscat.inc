@@ -5,11 +5,4 @@
 
       parameter (nmax = 1024)    !         diffraction channels
       parameter (mmax = 550)    !         z grid points
-      parameter (nfcx = 4096)    !         max (?) potential fourier components
-
-      parameter (npmax = 500)    !         NAG routine E04JAF: no of parameters
-      parameter (lw=npmax*(npmax-1)/2+12)
-      parameter (liw=npmax+2)   !
-      parameter (liw2=npmax+1)  !         NAG routine E05CCF parameter
-      parameter (ncmx=10)       !         no of experimental conditions
-      parameter (npwx=100)      !         no of potential well curves
+      parameter (nfcx = 4096)    !         max number of potential fourier components per z slice

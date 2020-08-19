@@ -21,13 +21,9 @@ program multiscat
   complex*16 a(nmax), b(nmax), c(nmax), s(nmax)
       
   !More Arrays
-  dimension icx(nmax,ncmx), icy(nmax,ncmx)
-  dimension ix(nmax), iy(nmax), ivx(nfcx), ivy(nfcx), ie(nmax,ncmx)
+  dimension ix(nmax), iy(nmax), ivx(nfcx), ivy(nfcx)
   dimension p(nmax), w(mmax), z(mmax)
-  dimension ep(nmax,ncmx),eep(nmax,ncmx),cp(nmax,ncmx),dw(nmax,ncmx)
   dimension d(nmax), e(mmax), f(mmax,nmax), t(mmax,mmax)
-  dimension ividx(nfcx),ivflag(nfcx)
-  dimension ctheta(ncmx),cphi(ncmx),cei(ncmx)
   parameter (hbarsq = 4.18020)
   integer startindex,endindex !start and ending indexes of the potential files to be used 
   integer endOfFile
@@ -170,17 +166,16 @@ program multiscat
     do
       read (81, *, iostat=endOfFile) ei, theta, phi !iostat checks for the end of the file
       if (endOfFile==0) then !Normal input
-        !print *, ei, theta, phi
           
         !find number of z values required
         call findmz (emax,vmin,nsf,zmin,zmax,m)
         if (itest.eq.1) write(21,*) 'Required number of z grid points, m = ',m
         if (m.gt.mmax) stop 'ERROR: m too big!'
-        !calculation kinetic enery matrix (possibly?)    
+           
         call tshape (zmin,zmax,m,w,z,t)
       
         !interpolate vfcs to required z positions
-        call potent(stepzmin,stepzmax,nzfixed,vfcfixed,nfc,vfc,m,z,ividx,ivflag,ivx)
+        call potent(stepzmin,stepzmax,nzfixed,vfcfixed,nfc,vfc,m,z)
     
         !get reciprocal lattice points    (also calculate how many channels are required for the calculation) 
         call basis(d,ix,iy,n,n00,dmax,imax)
@@ -192,7 +187,6 @@ program multiscat
           call waves (d(i),a(i),b(i),c(i),zmax)
           b(i) = b(i)/w(m)
           c(i) = c(i)/(w(m)**2)
-          ! print *, b(i), c(i)
         end do
         call precon (m,n,vfc,nfc,nfc00,d,e,f,t)
         ifail=0
@@ -211,7 +205,8 @@ program multiscat
         if (itest.eq.1) close (21)
         exit
       else !Unknown error
-        print *, '#### ERROR: Invalid line found in input file ####'
+        print *, '#### ERROR: Invalid line found in input file  ####'
+        print *, '#### (Make sure scatCond.in does not contain empty lines) ####'
         stop
       end if
     end do

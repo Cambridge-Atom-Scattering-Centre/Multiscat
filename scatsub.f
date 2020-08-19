@@ -132,13 +132,13 @@ c     -----------------------------------------------------------------
 c     This subroutine calculates the kinetic energy matrix, T, 
 c     in a normalised Lobatto shape function basis.
 c
-c	  Formula for this are taken from: 
+c     Formula for this are taken from: 
 c     "QUANTUM SCATTERING VIA THE LOG DERIVATIVE VERSION
 c     OF THE KOHN VARIATIONAL PRINCIPLE" 
 c     D. E. Manolopoulos and R. E. Wyatt, 
-c	  Chem. Phys. Lett., 1988, 152,23
+c     Chem. Phys. Lett., 1988, 152,23
 c
-c	  In that paper Lobatto shape functions (Lsf) are defined
+c     In that paper Lobatto shape functions (Lsf) are defined
 c     -----------------------------------------------------------------  
 c     
       dimension w(m),x(m),t(m,m)
@@ -146,12 +146,12 @@ c
       dimension ww(mmax+1),xx(mmax+1),tt(mmax+1,mmax+1)
       if (m .gt. mmax) stop 'tshape 1'
 
-c	  I think, that this is needed for the sum defined in Lsf to work
+c     I think, that this is needed for the sum defined in Lsf to work
       n = m+1
-c	  Get points and weights for n point Lobatto quadrature in (a,b)
+c     Get points and weights for n point Lobatto quadrature in (a,b)
       call lobatto (a,b,n,ww,xx)
       
-c	  No idea why it's done
+c     No idea why it's done
       do 1 i = 1,n
          ww(i) = sqrt(ww(i))
  1    continue
@@ -162,37 +162,37 @@ c	  No idea why it's done
 c			gg of i = j is trivially = 0, so no need for loops       
             if (j .eq. i) go to 3
 
-c			gg will be value of derivative of j-th Lsf at
-c			i-th root, which is: i-th Lsf evaluated at j-th
-c			root divided by ( i-th root minus j-th root )
+c           gg will be value of derivative of j-th Lsf at
+c           i-th root, which is: i-th Lsf evaluated at j-th
+c           root divided by ( i-th root minus j-th root )
             gg = 1.0d0/(xx(i)-xx(j))
             ff = ff+gg
             
             do 2 k = 1,n
             
-c			   This loop multiplies gg defined above by j-th Lsf
-c			   evaluated at i-th root, which is itself a Lagrangian interpolation
+c              This loop multiplies gg defined above by j-th Lsf
+c              evaluated at i-th root, which is itself a Lagrangian interpolation
                if (k.eq.j .or. k.eq.i) go to 2
                gg = gg*(xx(j)-xx(k))/(xx(i)-xx(k))
                
  2          continue
 
-c			Write into tt value of derivative of j-th Lsf
-c			evaluated at i-th root. This relation is described in the paper mentioned
+c           Write into tt value of derivative of j-th Lsf
+c           evaluated at i-th root. This relation is described in the paper mentioned
 
             tt(j,i) = ww(j)*gg/ww(i)   
 c           this appears wrong going by the given paper 
             
  3       continue
-c		 tt of i,i is 0 as the i-th Lsf has a maximum at the i-th root, unless i=1 or i=n
+c        tt of i,i is 0 as the i-th Lsf has a maximum at the i-th root, unless i=1 or i=n
          tt(i,i) = ff
          
  4    continue
       do 7 i = 1,m
-c		 In this approach 1: roots are in decreasing order
-c		 2: last root ( 0 ) doesn't get included in calculations
-c		 but subroutine lobatto returns roots and weights in 
-c		 increasing order so this has to be done manually
+c        In this approach 1: roots are in decreasing order
+c        2: last root ( 0 ) doesn't get included in calculations
+c        but subroutine lobatto returns roots and weights in 
+c        increasing order so this has to be done manually
          w(i) = ww(i+1)
          x(i) = xx(i+1)
 
@@ -209,7 +209,7 @@ c			   of j-th Lsf at k-th root ]
 
                hh = hh + tt(k,i+1)*tt(k,j+1)
  5          continue
-c			t is symmetric
+c           t is symmetric
             t(i,j) = hh
             t(j,i) = hh
             
@@ -228,18 +228,18 @@ c     This subroutine calculates an n-point Gauss-Lobatto
 c     quadrature rule in the interval a < x < b.
 c
 c     Function localizes zeros of the derivative of n-1 th Legendre 
-c	  polynomial and calculates associated weights.
+c     polynomial and calculates associated weights.
 c
-c	  All recursive formulas are on Wikipedia except for P[n]''
-c	  but it can be derived using others
+c     All recursive formulas are on Wikipedia except for P[n]''
+c     but it can be derived using others
 c
 c     ----------------------------------------------------------------- 
 c     
       dimension w(n),x(n)
   
-c	  shift and scale have to be used to change integral in (a,b)
-c	  to (-1,1) where lobatto quadrature works.
-c	  I denote n-th Legendre polynomial as P[n] and its derivative as P[n]'
+c     shift and scale have to be used to change integral in (a,b)
+c     to (-1,1) where lobatto quadrature works.
+c     I denote n-th Legendre polynomial as P[n] and its derivative as P[n]'
 c
       l = (n+1)/2
 c     Isn't pi defined above as a double ?!?!?!
@@ -250,19 +250,19 @@ c     ---<See Docs/GaussianQuadrature.pdf, top of page 2>
       weight = (b-a)/(n*(n-1))
 
       
-c 	  Specific to Lobatto quadrature, First point is a
+c     Specific to Lobatto quadrature, First point is a
       x(1) = a
       w(1) = weight
       
       do 3 k = 2,l
-c	  As zeros are symmetric, there is only need to find positive ones
-c	  z is approximated zero of P[n-1] using Francesco Tricomi approximation
-c	  then accuracy of the zero is improved using Newton-Raphson
-c	  few times ( arbitrary so far ). The cosine equation finds a point
-c    roughly halfway between 2 zeros of P[n].
+c     As zeros are symmetric, there is only need to find positive ones
+c     z is approximated zero of P[n-1] using Francesco Tricomi approximation
+c     then accuracy of the zero is improved using Newton-Raphson
+c     few times ( arbitrary so far ). The cosine equation finds a point
+c     roughly halfway between 2 zeros of P[n].
          z = cos(pi*(4*k-3)/(4*n-2))
-c	  	 Calculate value of P[n-1] at z using Bonnets recursive formula
-c		 p1 is P[j], p2 = P[j-1], p3 = P[j-2]
+c        Calculate value of P[n-1] at z using Bonnets recursive formula
+c        p1 is P[j], p2 = P[j-1], p3 = P[j-2]
          do 2 i = 1,7
             p2 = 0.0d0
             p1 = 1.0d0
@@ -271,22 +271,22 @@ c		 p1 is P[j], p2 = P[j-1], p3 = P[j-2]
                p2 = p1
                p1 = ((2*j-1)*z*p2-(j-1)*p3)/j
  1          continue
-c	 		p2 gets overwritten to be P[n-1]'
+c           p2 gets overwritten to be P[n-1]'
             p2 = (n-1)*(p2-z*p1)/(1.0d0-z*z)
-c 	 		p3 gets overwritten to be P[n-1]''
+c           p3 gets overwritten to be P[n-1]''
             p3 = (2.0d0*z*p2-n*(n-1)*p1)/(1.0d0-z*z)
-c	 		Actual Newton-Raphson step
+c           Actual Newton-Raphson step
             z = z-p2/p3
  2       continue
-c	 	 Write in shifted and scaled zeros and weights
+c        Write in shifted and scaled zeros and weights
          x(k) = shift-scale*z
-c  	 	 Write in zero with other sign
+c        Write in zero with other sign
          x(n+1-k) = shift+scale*z
-c	 	 Write in weights (they are always positive)
+c        Write in weights (they are always positive)
          w(k) = weight/(p1*p1)
          w(n+1-k) = w(k)
  3    continue
-c	  Specific to Lobatto quadrature, last point is b
+c     Specific to Lobatto quadrature, last point is b
       x(n) = b
       w(n) = weight
       return
@@ -328,27 +328,27 @@ c     ------------------------------------------------------------------
 c     This subroutine constructs the matrix factors that are required
 c     for the block lower triangular preconditioner used in GMRES.
 c
-c	  t is kinetic energy matrix from tshapes
+c	   t is the matrix from tshapes
 c     ------------------------------------------------------------------
 c
       complex*16 vfc(m,nfc)
       dimension d(n), e(m), f(m,n), t(m,m)
       dimension g(mmax)
 
-c	  if m exceeds maximum size of m program terminates printing out precon 1
+c	   if m exceeds maximum size of m program terminates printing out precon 1
       if (m .gt. mmax) stop 'precon 1'
 c
       do k = 1,m
-c		 dble(x) transfroms input into double precision real
-c		 for complex numbers it will return only real part
-c		 They overwrite t to br H0 as in '90 kohn paper ?
+c        dble(x) transfroms input into double precision real
+c        for complex numbers it will return only real part
+c        This overwrites t to be H0 (as named in '90 Kohn paper)
          t(k,k) = t(k,k) + dble(vfc(k,nfc00))
       enddo
 
-c	  get eigenvalues [e] and eigenvectors [ overwrite them on t] of t, 
-c	  which is m x m symmetric real matrix. f is temporary storage array
+c	   get eigenvalues [e] and eigenvectors [ overwrite them on t] of t, 
+c	   which is m x m symmetric real matrix. f is temporary storage array
       call rs (m,m,t,e,t,f,ierr)     
-c	  if ierr != 0 program terminates printing out precon 2, meaning rs failed
+c	   if ierr != 0 program terminates printing out precon 2, meaning rs failed
       if (ierr .ne. 0) stop 'precon 2' 
       
       do j = 1,n
@@ -438,7 +438,7 @@ c
       xnorm = sqrt(xnorm)
       g(1) = xnorm
 c
-c     Generic recursion:
+c     Generic recursion: (you mean iteration?)
 c
       kconv = 0
       do j = 1,n
@@ -658,7 +658,6 @@ c
          go to 2
    1  r = (a/scale)*conjg(a/scale) + (b/scale)*conjg(b/scale)
       r = scale*sqrt(r)
-      !if (real(rho) .lt. 0.0d0) r = -r
       if (dble(rho) .lt. 0.0d0) r = -r
       c = conjg(a/r)
       s = b/r
@@ -704,6 +703,4 @@ c
      + '# Diffraction Spot         Intensity'/'#',1x,36('-'))
  602  format ('#',i7,i6,e22.6)
  612  format ('#',37('-')/5x,'Unitarity',e22.6/'#',1x,36('-'))
-c     close(21)
       end
-      
