@@ -1,0 +1,30 @@
+multiscat.f90
+    
+    No subroutines
+
+potsub.f90
+    
+    loadfixedpot (stepzmin, stepzmax, nzfixed, nfc, vfcfixed, fourierfile, itest)
+    potent (stepzmin, stepzmax, nzfixed, vfcfixed, nfc, vfc, m, z, ividx, ivflag, itest, ivx, ivy)
+    onedbasis (d, ix, iy, n, n00, dmax, imax, iwrite, itest)
+    onedoutput (ei, theta, phi, ix, iy, n, n00, d, p, nsf, iwrite, itest, a1, inumenergy)
+    
+diagsub.f
+    
+    rs (nm, n, a, w, z, fv1, ierr)
+    tred2 (nm, n, a, d, e, z)
+    tql2 (nm, n, d, e, z, ierr)
+    
+scatsub.f
+    
+    findmz (emax, vmin, nsf, zmin, zmax, mz, itest)
+    basis (d, ix, iy, n, n00, dmax, imax, iwrite, itest)
+    tshape (a, b, m, w, x, t, itest)
+    lobatto (a, b, n, w, x)
+    waves (w0, a, b, c, zmax)
+    precon (m, n, vfc, nfc, nfc00, d, e, f, t)
+    gmres (x, xx, y, m, ix, iy, n, n00, vfc, ivx, ivy, nfc, a, b, c, d, e, f, p, s, t, eps, ipc, ifail)
+    upper (x, m, ix, iy, n, vfc, ivx, ivy, nfc)
+    lower (x, m, ix, iy, n, vfc, ivx, ivy, nfc, c, d, e, f, t)
+    zrotg (a, b, c, s)
+    output (ei, theta, phi, ix, iy, n, n00, d, p, nsf, outfile, itest)
