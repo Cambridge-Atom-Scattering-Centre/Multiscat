@@ -24,3 +24,39 @@ Lobatto needs to find roots of Legendre polynomial's drivative:
 	-Uses Newton Raphson root finding the zeros of the derivative
 	 (these are the x values needed for Lobatto quadrature rule)
 	-Evaluates wheights to be used at each point <see GaussianQuadrature.pdf, bottom of page 6>
+	
+	
+Papers used in this program:
+	- 1:
+		D.E. Manolopoulos, R.E. Wyatt,
+		Quantum scattering via the log derivative version of the Kohn variational principle,
+		Chemical Physics Letters,
+		Volume 152, Issue 1, 1988, Pages 23-32
+		
+	- 2: 
+		D.E. Manolopoulos, R.E. Wyatt,
+		Iterative Solution in Quantum Scattering Theory. The log Derivative Kohn Approach
+		J. Chem. Soc., Faraday Trans., 1990,86, 1641-1648 
+
+	- 3:
+		Yousef Saad
+		Iterative Methods for Sparse Linear Systems
+		Second edition, 2000
+		
+Gaussian-Legendre Quadrature is fairly well known, Gausian-Lobatto quadrature uses
+	Lobatto polynomials to determine points and weights to use, which for this method
+	is equivalent with derivative of Legendre Polynomials.
+	
+Lobatto-shape functions and their usefulness are explained in section 3 of [1]. 
+	(Plot of them fig.1 is incorrect, correct version is shown in fig. 1 of [2] )
+
+In section 4 of [1] it's explained how they're used to determine entries in matrices 
+	used for determining scattering.
+	
+GMRES is well explained in chapter 6 of [3], and choice for preconditioner in
+	section 3.2 of [2]
+
+
+
+
+
