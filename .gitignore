@@ -9,18 +9,5 @@
 .directory
 .6
 
-#Ignore test directory contents, but not the directory itself
-Test*/*
-
-# Include executables ond outputs when in the Exe|Out directory
-!Exe|Out/*.exe
-!Exe|Out/*.o
-!Exe|Out/*.out
-
-#Also include Multiscat.conf and Result.out in the tests
-!Test*/Result.out
-!Test*/Multiscat.conf
-!Test*/scatCond.in
-
 #Ignore Mac OS files
 *.DS_Store
