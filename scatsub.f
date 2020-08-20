@@ -651,17 +651,18 @@ c
       rho = b
       if (abs(a) .gt. abs(b)) rho = a
       scale = abs(a) + abs(b)
-      if (scale .ne. 0.0d0) go to 1
+      if (scale .eq. 0.0d0) then
          c = 1.0d0
          s = 0.0d0
          r = 0.0d0
-         go to 2
-   1  r = (a/scale)*conjg(a/scale) + (b/scale)*conjg(b/scale)
-      r = scale*sqrt(r)
-      if (dble(rho) .lt. 0.0d0) r = -r
-      c = conjg(a/r)
-      s = b/r
-   2  z = 1.0d0
+      else 
+         r = (a/scale)*conjg(a/scale) + (b/scale)*conjg(b/scale)
+         r = scale*sqrt(r)
+         if (dble(rho) .lt. 0.0d0) r = -r
+         c = conjg(a/r)
+         s = b/r
+      end if
+      z = 1.0d0
       if (abs(a) .gt. abs(b)) z = s
       if (abs(b) .ge. abs(a) .and. abs(c) .ne. 0.0d0) z = 1.0d0/c
       a = r
@@ -681,7 +682,7 @@ c
       dimension ix(n), iy(n), d(n), p(n)
       sum = 0.0d0
       if (itest.eq.1) then
-      write (21,601) ei,theta,phi
+         write (21,601) ei,theta,phi
       endif 
       do j = 1,n
          jx = ix(j)
@@ -694,7 +695,7 @@ c
          endif
       end do
       if (itset.eq.1) write (21,612) sum
-      write (*,'(5e14.6)') ei,theta,phi,p(n00),sum
+         write (*,'(5e14.6)') ei,theta,phi,p(n00),sum
       return
  601  format ('# Diffraction Probabilities at:'/'#',1x,36('-')/1x,
      + '# Beam energy           ei = ',e10.4/1x,
