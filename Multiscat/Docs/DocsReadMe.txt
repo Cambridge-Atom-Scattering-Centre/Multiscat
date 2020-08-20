@@ -33,8 +33,8 @@ Papers used in this program:
 		Second edition, 2000
 		
 Gaussian-Legendre Quadrature is fairly well known, Gausian-Lobatto quadrature less so. It uses
-	Lobatto polynomials (equivalent to the derivative of Legendre Polynomials) to determine 
-        points and weights to use.
+	Lobatto polynomials zero's, which have zeros at the same place as the derivative of Legendre
+	polynomial, to determine points and weights to use.
         <see GaussianQuadrature.pdf, bottom of page 6>(author unkown)
 
 Lobatto Quadrature needs to find roots of Legendre polynomial's drivative. This is done via a 
