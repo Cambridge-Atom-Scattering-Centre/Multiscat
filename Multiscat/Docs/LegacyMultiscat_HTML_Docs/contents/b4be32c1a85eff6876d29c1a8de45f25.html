@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>scatsub.f</title>
+    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,300italic,400italic,700italic|Source+Code+Pro:300,400,700' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="../assets/css/bootstrap.css">
+<link rel="stylesheet" href="../assets/css/jquery.bonsai.css">
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/icon-font/icons.css">
+<script type="text/javascript" src="../assets/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript" src="../assets/js/bootstrap.js"></script>
+<script type="text/javascript" src="../assets/js/jquery.bonsai.js"></script>
+
+  </head>
+  <body>
+    <div>
+
+      <!-- Name Title -->
+
+      <h1>scatsub.f</h1>
+
+      <!-- Type and Stereotype -->
+
+      <section style="margin-top: .5em;">
+        <span class="alert alert-info">
+          <span class="node-icon staruml-icon icon-UMLClass"></span>
+          UMLClass
+        </span>
+        
+      </section>
+
+      <!-- Path -->
+
+      <section style="margin-top: 10px">
+        
+        
+        
+          
+          <span class="label label-info"><a href='cf9c8b720f3815adeccaf3ef6e48c6c4.html'><span class='node-icon staruml-icon icon-Project'></span>FortranMultiscat</a></span>
+        
+          <span>::</span>
+          <span class="label label-info"><a href='594af663de577680f35b13183109d675.html'><span class='node-icon staruml-icon icon-UMLModel'></span>DependancyTree</a></span>
+        
+          <span>::</span>
+          <span class="label label-info"><a href='b4be32c1a85eff6876d29c1a8de45f25.html'><span class='node-icon staruml-icon icon-UMLClass'></span>scatsub.f</a></span>
+        
+      </section>
+
+      <!-- Diagram -->
+
+      
+
+      <!-- Description -->
+
+      
+      <section>
+        <h3>Description</h3>
+        <div>
+          
+            <span class="label label-info">none</span>
+          
+        </div>
+      </section>
+      
+
+      <!-- Specification -->
+
+      
+
+      <!-- Directed Relationship -->
+
+      
+
+      <!-- Undirected Relationship -->
+
+      
+
+      <!-- Classifier -->
+
+      
+        
+        
+
+
+        
+        
+
+
+        
+        
+
+
+        
+        
+
+
+        
+        
+
+      
+
+      <!-- Interface -->
+
+      
+
+      <!-- Component -->
+
+      
+
+      <!-- Node -->
+
+      
+
+      <!-- Actor -->
+
+      
+
+      <!-- Use Case -->
+
+      
+
+      <!-- Template Parameters -->
+
+      
+
+      <!-- Literals -->
+
+      
+
+      <!-- Attributes -->
+
+      
+
+      <!-- Operations -->
+
+      
+      <section>
+        <h3>Operations</h3>
+        <table class="table table-striped table-bordered">
+          <tr>
+            <th>Visibility</th>
+            <th>Name</th>
+            <th>Description</th>
+          </tr>
+          
+          <tr>
+            <td>public</td>
+            <td><a href="a8f832b6488b2fcfcaa4ab25f5446f02.html">findmz(emax, vmin, nsf, zmin, zmax, mz, itest)</a></td>
+            <td><p>This subroutine determines the number of translational grid points mz that are to be used in the scattering calculation.</p>
+
+<p>The number of the Lobatto functions per de Broglie wave length is depend on the significant figures of accuracy.  Here the mz was determined by the critior from Fig.2 of DEM,  &quot;Lobatto shape functions&quot;, in &quot;Numerical Grid Methods and Their Application to Schrodinger&#39;s Equation&quot; (C. Cerjan, ed., NATO/ASI, Kluwer, Dordrecht, 1993)).</p>
+
+<p>In its current state, it just sets mz = 550 and discards all of the above theory.</p>
+
+<p>emax     maximum energy for z component
+vmin     estimated surface potential depth (latteral averaged potential)
+mz       the total number of Labotto functions</p>
+
+<p>In the current state this just returns 550, regardless of input.</p></td>
+          </tr>
+          
+          <tr>
+            <td>public</td>
+            <td><a href="635233aae566a75373d7ddd14d5db172.html">tshape(a, b, m, w, x, t, itest)</a></td>
+            <td><p>Evaluates the &quot;T&quot; matrix in a lobatto shape function basis. </p>
+
+<p>(See Manolopoloulos &amp; Wyatt, &quot;Quantum Scattering via the log derivative version of the Kohn variational principle&quot;, chem. phys. letters, 1988 V152 N1: see equation 18b )</p>
+
+<p>Takes integration range (a, b) and the number of sample points (m) as  inputs. </p>
+
+<p>Returns the lobatto weights (w) the lobatto roots (x) and the t matrix (t). </p></td>
+          </tr>
+          
+          <tr>
+            <td>public</td>
+            <td><a href="5a2582526eedebcbad47800dcc97936d.html">lobatto(a, b, n, w, x)</a></td>
+            <td><p>Used in the Gauss-Lobatto quadrature . </p>
+
+<p>Takes as inputs the bounds of the integration range (a, b) and the order of the order of the quadrature (n).</p>
+
+<p>Returns the points at which to evaluate the function (x) and the wheight to assign to each point (w) as arrays.</p></td>
+          </tr>
+          
+          <tr>
+            <td>public</td>
+            <td><a href="f77dabb6a5a579d4aba6a89d62c6a278.html">basis(d, ix, iy, n, n00, dmax, imax, iwrite, itest)</a></td>
+            <td><p>calculate reciprocal lattice
+calculate d (z-component of energy of outgoing wave) for each channel</p>
+
+<p>gax, gbx  = the unit vector of reciprocal lattice along symmetry direction</p>
+
+<p>gay, gby  = y components of unit vector of reciprocal lattice along symmetry direction 2</p>
+
+<p>(See fortran code for description of all working parameters)</p></td>
+          </tr>
+          
+          <tr>
+            <td>public</td>
+            <td><a href="06d4b50a6dc92af13f5613d1106ebd9c.html">waves(w0, a, b, c, zmax)</a></td>
+            <td><p>Makes the  matrices a,b and c.</p>
+
+<p>(See Manolopoloulos &amp; Wyatt, &quot;Iterative Solution in Quantum Scattering Theory &quot;, J. CHEM. SOC. FARADAY TRANS., 1990, 86(10), 1641-1648 : see pg 2 )</p></td>
+          </tr>
+          
+          <tr>
+            <td>public</td>
+            <td><a href="2851505fc49fc699b39f4934db05631d.html">precon(m, n, vfc, nfc, nfc00, d, e, f, t)</a></td>
+            <td><p>Implements the precondition for the GMRES alghorithm.</p>
+
+<p>(See Manolopoloulos &amp; Wyatt, &quot;Iterative Solution in Quantum Scattering Theory &quot;, J. CHEM. SOC. FARADAY TRANS., 1990, 86(10), 1641-1648 : see pg 4 )</p>
+
+<p>[NOTE: More documentation required]</p></td>
+          </tr>
+          
+          <tr>
+            <td>public</td>
+            <td><a href="20308f70365803506647f9fd05774607.html">gmres(x, xx, y, m, ix, iy, n, n00, vfc, ivx, ivy, nfc, a, b, c, d, e, f, p, s, t, eps, ipc, ifail)</a></td>
+            <td><p>Complex Generalised Minimal Residual Algorithm (GMRES)</p>
+
+<p>See {???} for generic version of the alghorithm.</p>
+
+<p>Note that this implementation appers to be preconditioner specific and the details are not currently understood.</p>
+
+<p>[NOTE: More documentation required]</p></td>
+          </tr>
+          
+          <tr>
+            <td>public</td>
+            <td><a href="64df4dd5bd09cf22440f52e1b5ef5d98.html">upper(x, m, ix, iy, n, vfc, ivx, ivy, nfc)</a></td>
+            <td><p>This subroutine performs the block upper triangular  matrix multiplication y = U*x, where A = L+U. The result y is overwritten on x on return. </p>
+
+<p>all parameters as inputs.</p>
+
+<p>x as output.</p>
+
+<p>[NOTE: More documentation required, function is more complex than this description suggests]</p></td>
+          </tr>
+          
+          <tr>
+            <td>public</td>
+            <td><a href="858861ae39d9a14a0467a023f6e3ac05.html">lower(x, m, ix, iy, n, vfc, ivx, ivy, nfc, c, d, e, f, t)</a></td>
+            <td><p>This subroutine solves the block lower triangular linear equation L*y = x, where A = L+U. The result y is overwritten on x on return.</p>
+
+<p>all parameters are inputs.</p>
+
+<p>x is an output.</p>
+
+<p>[NOTE: More documentation required, function is more complex than this description suggests]</p></td>
+          </tr>
+          
+          <tr>
+            <td>public</td>
+            <td><a href="d8ad8c549982a6e2ca6b933e6802d168.html">output(ei, theta, phi, ix, iy, n, n00, d, p, nsf, outfile, itest)</a></td>
+            <td><p>This subroutine outputs specular scattering probabilities for a given set of beam parameters ei, theta, and phi.</p>
+
+<p>[NOTE: More documentation required]</p></td>
+          </tr>
+          
+          <tr>
+            <td>public</td>
+            <td><a href="64e19994ea0f34e627b13d5437ce5468.html">zrotg(a, b, c, s)</a></td>
+            <td><p>his subroutine constructs and performs a complex Givens rotation</p>
+
+<p>[NOTE: More documentation required]</p></td>
+          </tr>
+          
+        </table>
+      </section>
+      
+
+      <!-- Receptions -->
+
+      
+
+      <!-- Extension Points -->
+
+      
+
+      <!-- Parameters -->
+
+      
+
+      <!-- Diagrams -->
+
+      
+      
+
+      <!-- Behavior -->
+
+      
+
+      <!-- Action -->
+
+      
+
+      <!-- Interaction -->
+
+      
+
+      <!-- CombinedFragment -->
+
+      
+
+      <!-- Activity -->
+
+      
+
+      <!-- State Machine -->
+
+      
+
+      <!-- State Machine -->
+
+      
+
+      <!-- State -->
+
+      
+
+      <!-- Vertex -->
+
+      
+
+      <!-- Transition -->
+
+      
+
+      <!-- Data Model (ERD) -->
+
+      
+
+      <!-- Columns (ERD) -->
+
+      
+
+      <!-- Related Entities (ERD) -->
+
+      
+
+      <!-- Data Flows (DFD) -->
+
+      
+
+      <!-- Flows (Flowchart) -->
+
+      
+
+      <!-- Properties -->
+
+      <section>
+        <h3>Properties</h3>
+        
+        <table class="table table-striped table-bordered">
+    <tr>
+        <th width="50%">Name</th>
+        <th width="50%">Value</th>
+    </tr>
+    
+    
+    
+    
+    
+    
+    
+    <tr>
+        <td>name</td>
+        <td>scatsub.f</td>
+    </tr>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <tr>
+        <td>stereotype</td>
+        <td><span class='label label-info'>null</span></td>
+    </tr>
+    
+    
+    
+    
+    
+    <tr>
+        <td>visibility</td>
+        <td>public</td>
+    </tr>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <tr>
+        <td>isAbstract</td>
+        <td><span class='label label-info'>false</span></td>
+    </tr>
+    
+    
+    
+    
+    
+    <tr>
+        <td>isFinalSpecialization</td>
+        <td><span class='label label-info'>false</span></td>
+    </tr>
+    
+    
+    
+    
+    
+    <tr>
+        <td>isLeaf</td>
+        <td><span class='label label-info'>false</span></td>
+    </tr>
+    
+    
+    
+    
+    
+    <tr>
+        <td>isActive</td>
+        <td><span class='label label-info'>false</span></td>
+    </tr>
+    
+    
+    
+</table>                
+
+      </section>
+
+      <!-- Tags -->
+
+      
+
+      <!-- Constraints, Dependencies, Dependants -->
+
+      
+        
+        
+
+
+        
+        
+<section class="element-list">
+    <h3>Dependencies</h3>
+    <ul class="nav nav-list">
+        
+        <li><a href='b1d78a948f76f1f9c0bf03ea41f23207.html'><span class='node-icon staruml-icon icon-UMLClass'></span>diagsub.f</a></li>
+        
+    </ul>
+</section>
+
+
+
+        
+        
+<section class="element-list">
+    <h3>Dependants</h3>
+    <ul class="nav nav-list">
+        
+        <li><a href='6d18c5fa4a0cf83af1f7b33873603e74.html'><span class='node-icon staruml-icon icon-UMLClass'></span>Multiscat.f90</a></li>
+        
+    </ul>
+</section>
+
+
+      
+
+      <!-- Relationships -->
+
+      
+      
+<section class="element-list">
+    <h3>Relationships</h3>
+    <ul class="nav nav-list">
+        
+        <li><a href='ed2c446622f52440e9573b27e6fe5bd6.html'><span class='node-icon staruml-icon icon-UMLDependency'></span>(Multiscat.f90→scatsub.f)</a></li>
+        
+        <li><a href='9c314b43708fa04739cfbabcb692d36c.html'><span class='node-icon staruml-icon icon-UMLDependency'></span>(scatsub.f→diagsub.f)</a></li>
+        
+        <li><a href='06396c2f0c46bb5668331ebdd94b9c0c.html'><span class='node-icon staruml-icon icon-UMLAssociation'></span>output (scatsub.f—diffrac*****.out)</a></li>
+        
+        <li><a href='f0be4a2f7c860ce208ad0bcf0f821622.html'><span class='node-icon staruml-icon icon-UMLAssociation'></span>(multiscat.inc—scatsub.f)</a></li>
+        
+    </ul>
+</section>
+
+
+
+      <!-- Owned Elements -->
+
+      
+      
+<section class="element-list">
+    <h3>Owned Elements</h3>
+    <ul class="nav nav-list">
+        
+        <li><a href='9c314b43708fa04739cfbabcb692d36c.html'><span class='node-icon staruml-icon icon-UMLDependency'></span>(scatsub.f→diagsub.f)</a></li>
+        
+        <li><a href='06396c2f0c46bb5668331ebdd94b9c0c.html'><span class='node-icon staruml-icon icon-UMLAssociation'></span>output (scatsub.f—diffrac*****.out)</a></li>
+        
+    </ul>
+</section>
+
+
+
+    </div>
+  </body>
+</html>

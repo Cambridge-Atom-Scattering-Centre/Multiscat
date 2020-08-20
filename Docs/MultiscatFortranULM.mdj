@@ -555,7 +555,7 @@
 											"top": 880,
 											"width": 495.244140625,
 											"height": 13,
-											"text": "+loadfixedpot(stepzmin, stepzmax, nzfixed, nfc, vfcfixed, fourierfile, itest)",
+											"text": "+loadfixedpot(nzfixed, nfc, vfcfixed, fourierfile)",
 											"horizontalAlignment": 0
 										},
 										{
@@ -803,7 +803,7 @@
 											"top": 1176,
 											"width": 479.33056640625,
 											"height": 13,
-											"text": "+findmz(emax, vmin, nsf, zmin, zmax, mz, itest)",
+											"text": "+findmz(emax, vmin, nsf, zmin, zmax, mz)",
 											"horizontalAlignment": 0
 										},
 										{
@@ -820,7 +820,7 @@
 											"top": 1191,
 											"width": 479.33056640625,
 											"height": 13,
-											"text": "+tshape(a, b, m, w, x, t, itest)",
+											"text": "+tshape(a, b, m, w, x, t)",
 											"horizontalAlignment": 0
 										},
 										{
@@ -854,7 +854,7 @@
 											"top": 1221,
 											"width": 479.33056640625,
 											"height": 13,
-											"text": "+basis(d, ix, iy, n, n00, dmax, imax, iwrite, itest)",
+											"text": "+basis(d, ix, iy, n, n00, dmax, imax)",
 											"horizontalAlignment": 0
 										},
 										{
@@ -956,7 +956,7 @@
 											"top": 1311,
 											"width": 479.33056640625,
 											"height": 13,
-											"text": "+output(ei, theta, phi, ix, iy, n, n00, d, p, nsf, outfile, itest)",
+											"text": "+output(ei, theta, phi, ix, iy, n, n00, d, p, itest)",
 											"horizontalAlignment": 0
 										},
 										{
@@ -5618,7 +5618,7 @@
 							}
 						}
 					],
-					"documentation": "This handles the following tasks:\n   -Reads input files and creates variables\n   -Calls the necessary subroutines to solve the scattering problem\n   -Gives the user feedback on the solver's progress\n   -Calls the subroutine to save the output to a file/s\n\nKnown issues: THE CODE APPERS TO HAVE NO CHECKS FOR INDEXING ARRAYS OUT OF RANGE. THIS IS LIKELY TO LEAD TO SEGMENTATION FAULTS AT RANDOM TIMES. DEBUG MODE WILL CAUSE ERRORS IN THIS CASE."
+					"documentation": "This handles the following tasks:\n   -Reads input files and creates variables\n   -Calls the necessary subroutines to solve the scattering problem\n   -Gives the user feedback on the solver's progress\n   -Calls the subroutine to save the output to a file/s"
 				},
 				{
 					"_type": "UMLClass",
@@ -5857,7 +5857,7 @@
 									"_parent": {
 										"$ref": "AAAAAAFza+HSoNE+1zs="
 									},
-									"name": "stepzmin",
+									"name": "nzfixed",
 									"type": ""
 								},
 								{
@@ -5866,7 +5866,7 @@
 									"_parent": {
 										"$ref": "AAAAAAFza+HSoNE+1zs="
 									},
-									"name": "stepzmax",
+									"name": "nfc",
 									"type": ""
 								},
 								{
@@ -5875,7 +5875,7 @@
 									"_parent": {
 										"$ref": "AAAAAAFza+HSoNE+1zs="
 									},
-									"name": "nzfixed",
+									"name": "vfcfixed",
 									"type": ""
 								},
 								{
@@ -5884,34 +5884,7 @@
 									"_parent": {
 										"$ref": "AAAAAAFza+HSoNE+1zs="
 									},
-									"name": "nfc",
-									"type": ""
-								},
-								{
-									"_type": "UMLParameter",
-									"_id": "AAAAAAFza+KP0dFLDqg=",
-									"_parent": {
-										"$ref": "AAAAAAFza+HSoNE+1zs="
-									},
-									"name": "vfcfixed",
-									"type": ""
-								},
-								{
-									"_type": "UMLParameter",
-									"_id": "AAAAAAFza+KP0dFMU4s=",
-									"_parent": {
-										"$ref": "AAAAAAFza+HSoNE+1zs="
-									},
 									"name": "fourierfile",
-									"type": ""
-								},
-								{
-									"_type": "UMLParameter",
-									"_id": "AAAAAAFza+KP0dFNUmc=",
-									"_parent": {
-										"$ref": "AAAAAAFza+HSoNE+1zs="
-									},
-									"name": "itest",
 									"type": ""
 								}
 							]
@@ -5931,7 +5904,8 @@
 									"_parent": {
 										"$ref": "AAAAAAFza+rLddH5trI="
 									},
-									"name": "stepzmin"
+									"name": "stepzmin",
+									"type": ""
 								},
 								{
 									"_type": "UMLParameter",
@@ -5939,7 +5913,8 @@
 									"_parent": {
 										"$ref": "AAAAAAFza+rLddH5trI="
 									},
-									"name": "stepzmax"
+									"name": "stepzmax",
+									"type": ""
 								},
 								{
 									"_type": "UMLParameter",
@@ -5947,7 +5922,8 @@
 									"_parent": {
 										"$ref": "AAAAAAFza+rLddH5trI="
 									},
-									"name": "nzfixed"
+									"name": "nzfixed",
+									"type": ""
 								},
 								{
 									"_type": "UMLParameter",
@@ -5955,7 +5931,8 @@
 									"_parent": {
 										"$ref": "AAAAAAFza+rLddH5trI="
 									},
-									"name": "vfcfixed"
+									"name": "vfcfixed",
+									"type": ""
 								},
 								{
 									"_type": "UMLParameter",
@@ -5963,7 +5940,8 @@
 									"_parent": {
 										"$ref": "AAAAAAFza+rLddH5trI="
 									},
-									"name": "nfc"
+									"name": "nfc",
+									"type": ""
 								},
 								{
 									"_type": "UMLParameter",
@@ -5971,7 +5949,8 @@
 									"_parent": {
 										"$ref": "AAAAAAFza+rLddH5trI="
 									},
-									"name": "vfc"
+									"name": "vfc",
+									"type": ""
 								},
 								{
 									"_type": "UMLParameter",
@@ -5979,7 +5958,8 @@
 									"_parent": {
 										"$ref": "AAAAAAFza+rLddH5trI="
 									},
-									"name": "m"
+									"name": "m",
+									"type": ""
 								},
 								{
 									"_type": "UMLParameter",
@@ -5987,7 +5967,8 @@
 									"_parent": {
 										"$ref": "AAAAAAFza+rLddH5trI="
 									},
-									"name": "z"
+									"name": "z",
+									"type": ""
 								}
 							]
 						},
@@ -6125,15 +6106,6 @@
 									},
 									"name": "mz",
 									"type": ""
-								},
-								{
-									"_type": "UMLParameter",
-									"_id": "AAAAAAFza+RwLtFl+RQ=",
-									"_parent": {
-										"$ref": "AAAAAAFza+LJkdFWnpQ="
-									},
-									"name": "itest",
-									"type": ""
 								}
 							]
 						},
@@ -6198,15 +6170,6 @@
 										"$ref": "AAAAAAFza+UGltFtJ8w="
 									},
 									"name": "t",
-									"type": ""
-								},
-								{
-									"_type": "UMLParameter",
-									"_id": "AAAAAAFza+UQr9F6Mec=",
-									"_parent": {
-										"$ref": "AAAAAAFza+UGltFtJ8w="
-									},
-									"name": "itest",
 									"type": ""
 								}
 							]
@@ -6337,24 +6300,6 @@
 										"$ref": "AAAAAAFza/fKwtJ+OAA="
 									},
 									"name": "imax",
-									"type": ""
-								},
-								{
-									"_type": "UMLParameter",
-									"_id": "AAAAAAFza/fsTdKMB5g=",
-									"_parent": {
-										"$ref": "AAAAAAFza/fKwtJ+OAA="
-									},
-									"name": "iwrite",
-									"type": ""
-								},
-								{
-									"_type": "UMLParameter",
-									"_id": "AAAAAAFza/fsTdKNeOQ=",
-									"_parent": {
-										"$ref": "AAAAAAFza/fKwtJ+OAA="
-									},
-									"name": "itest",
 									"type": ""
 								}
 							]
@@ -6970,7 +6915,7 @@
 								"$ref": "AAAAAAFza6MgTc+7jz0="
 							},
 							"name": "output",
-							"documentation": "This subroutine outputs specular scattering probabilities for a given set of beam parameters ei, theta, and phi.\n\n[NOTE: More documentation required]",
+							"documentation": "This subroutine outputs scattering probabilities for a given set of beam parameters ei, theta, and phi.\n\nIt appears only the specular intensities are output if itest = 0 (?)\n\nThe output file must be open under reference 21 for the function to execute correctly.\n\n[NOTE: More documentation required, especially where marked (?) ]",
 							"parameters": [
 								{
 									"_type": "UMLParameter",
@@ -7056,24 +7001,6 @@
 								{
 									"_type": "UMLParameter",
 									"_id": "AAAAAAFzbCvGZtR1ToU=",
-									"_parent": {
-										"$ref": "AAAAAAFzbCtYrtRlTgM="
-									},
-									"name": "nsf",
-									"type": ""
-								},
-								{
-									"_type": "UMLParameter",
-									"_id": "AAAAAAFzbCvGZtR2HYM=",
-									"_parent": {
-										"$ref": "AAAAAAFzbCtYrtRlTgM="
-									},
-									"name": "outfile",
-									"type": ""
-								},
-								{
-									"_type": "UMLParameter",
-									"_id": "AAAAAAFzbCvGZtR3geY=",
 									"_parent": {
 										"$ref": "AAAAAAFzbCtYrtRlTgM="
 									},
@@ -7186,7 +7113,8 @@
 								"$ref": "AAAAAAFzgpedSVuFCeg="
 							},
 							"name": "FourierLabelsFile",
-							"documentation": "The name of the file containing the Fourier labels. In legacy multiscat this eas \"FourierLabels.in\"."
+							"documentation": "The name of the file containing the Fourier labels. In legacy multiscat this eas \"FourierLabels.in\".",
+							"type": ""
 						},
 						{
 							"_type": "UMLAttribute",
@@ -7195,7 +7123,8 @@
 								"$ref": "AAAAAAFzgpedSVuFCeg="
 							},
 							"name": "scattCondFile",
-							"documentation": "The name of the file that contains the scattering conditions. In this documentation this is assumed to be scatCond.in ."
+							"documentation": "The name of the file that contains the scattering conditions. In this documentation this is assumed to be scatCond.in .",
+							"type": ""
 						},
 						{
 							"_type": "UMLAttribute",
@@ -7833,9 +7762,9 @@
 										"$ref": "AAAAAAFzcRhbKblUxd0="
 									},
 									"font": "Arial;13;0",
-									"left": 66.58642578125,
+									"left": 70.97900390625,
 									"top": 10,
-									"width": 138.185546875,
+									"width": 152.74072265625,
 									"height": 13,
 									"text": "FortranMultiscatSequence"
 								},
@@ -7848,7 +7777,7 @@
 									"font": "Arial;13;1",
 									"left": 5,
 									"top": 10,
-									"width": 56.58642578125,
+									"width": 60.97900390625,
 									"height": 13,
 									"text": "interaction"
 								}

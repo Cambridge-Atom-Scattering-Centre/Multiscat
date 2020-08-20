@@ -94,7 +94,7 @@ c
       ered   = rmlmda*ei ! ered is just k_i^2
       thetad = theta*pi/180.0d0
       phid   = phi*pi/180.0d0 
-      ! (?)
+
       pkx = sqrt(ered)*sin(thetad)*cos(phid)
       pky = sqrt(ered)*sin(thetad)*sin(phid)
       
@@ -677,6 +677,8 @@ c
 c     -------------------------------------------------------------------
 c     This subroutine outputs specular scattering probabilities 
 c     for a given set of beam parameters ei, theta, and phi.
+c     
+c     The output file must have reference 21
 c     -------------------------------------------------------------------
 c
       dimension ix(n), iy(n), d(n), p(n)
