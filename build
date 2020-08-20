@@ -1,8 +1,0 @@
-#!/bin/bash
-# clears old compiled files
-rm -rf ./*.o
-rm -rf ./multiscat
-
-printf 'Cleared directory, rebuilding...\n\n'
-#re-compiles new files
-make

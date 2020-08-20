@@ -1,8 +1,5 @@
 All the information compiled by F.Bello/E.Pierzchala on The fortran part of multiscat can be found in 
-the HTML docs. This represents the structure of multiscat AFTER editing by F.Bello/E.Pierzchala.
-
-Fay's guide is included as most of the information there is still relevant, although some is outdated.
-Where Fay's guide contradicts the HTML docs consider the HTML to be correct as they are more up to date.
+the HTML docs. This represents the structure of multiscat BEFORE editing by F.Bello/E.Pierzchala.
 
 The structure of the HTML docs is not perfect and some the information is in awkward places: 
 try clicking everything to get familiar with the structure, a lot of the names act like links 
