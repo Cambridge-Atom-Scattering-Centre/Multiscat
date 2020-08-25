@@ -574,42 +574,6 @@
 											"height": 13,
 											"text": "+potent(stepzmin, stepzmax, nzfixed, vfcfixed, nfc, vfc, m, z)",
 											"horizontalAlignment": 0
-										},
-										{
-											"_type": "UMLOperationView",
-											"_id": "AAAAAAFzbfBPIc/FAFw=",
-											"_parent": {
-												"$ref": "AAAAAAFza6L+Wc+aPuo="
-											},
-											"model": {
-												"$ref": "AAAAAAFzbfBOw8/Cp6Y="
-											},
-											"visible": false,
-											"font": "Arial;13;0",
-											"left": 557,
-											"top": 910,
-											"width": 495.244140625,
-											"height": 13,
-											"text": "+onedbasis()",
-											"horizontalAlignment": 0
-										},
-										{
-											"_type": "UMLOperationView",
-											"_id": "AAAAAAFzbfCEnM/MSz0=",
-											"_parent": {
-												"$ref": "AAAAAAFza6L+Wc+aPuo="
-											},
-											"model": {
-												"$ref": "AAAAAAFzbfCEU8/Jz1Q="
-											},
-											"visible": false,
-											"font": "Arial;13;0",
-											"left": 557,
-											"top": 910,
-											"width": 495.244140625,
-											"height": 13,
-											"text": "+onedoutput()",
-											"horizontalAlignment": 0
 										}
 									],
 									"font": "Arial;13;0",
@@ -1685,60 +1649,6 @@
 											"width": 145.58984375,
 											"height": 13,
 											"text": "+imax",
-											"horizontalAlignment": 0
-										},
-										{
-											"_type": "UMLAttributeView",
-											"_id": "AAAAAAFzgwjfRWKBY58=",
-											"_parent": {
-												"$ref": "AAAAAAFzgpedSVuNsPg="
-											},
-											"model": {
-												"$ref": "AAAAAAFzgwjfH2J+TmI="
-											},
-											"visible": false,
-											"font": "Arial;13;0",
-											"left": 77,
-											"top": 227,
-											"width": 145.58984375,
-											"height": 13,
-											"text": "+Energies/Thetas/Phis",
-											"horizontalAlignment": 0
-										},
-										{
-											"_type": "UMLAttributeView",
-											"_id": "AAAAAAFzgwnS6mLwElo=",
-											"_parent": {
-												"$ref": "AAAAAAFzgpedSVuNsPg="
-											},
-											"model": {
-												"$ref": "AAAAAAFzgwnSomLtrq4="
-											},
-											"visible": false,
-											"font": "Arial;13;0",
-											"left": 77,
-											"top": 212,
-											"width": 145.58984375,
-											"height": 13,
-											"text": "+Thetas",
-											"horizontalAlignment": 0
-										},
-										{
-											"_type": "UMLAttributeView",
-											"_id": "AAAAAAFzgwqiimNNIOo=",
-											"_parent": {
-												"$ref": "AAAAAAFzgpedSVuNsPg="
-											},
-											"model": {
-												"$ref": "AAAAAAFzgwqiQWNK4Pk="
-											},
-											"visible": false,
-											"font": "Arial;13;0",
-											"left": 77,
-											"top": 227,
-											"width": 145.58984375,
-											"height": 13,
-											"text": "+Phis",
 											"horizontalAlignment": 0
 										},
 										{
@@ -3789,114 +3699,6 @@
 											"width": 117.12060546875,
 											"height": 13,
 											"text": "+nfcx",
-											"horizontalAlignment": 0
-										},
-										{
-											"_type": "UMLAttributeView",
-											"_id": "AAAAAAFzhuQPlzCu5og=",
-											"_parent": {
-												"$ref": "AAAAAAFzht0D4h13IlM="
-											},
-											"model": {
-												"$ref": "AAAAAAFzhuQPczCfdL4="
-											},
-											"visible": false,
-											"font": "Arial;13;0",
-											"left": 317,
-											"top": 920,
-											"width": 117.12060546875,
-											"height": 13,
-											"text": "+npmax",
-											"horizontalAlignment": 0
-										},
-										{
-											"_type": "UMLAttributeView",
-											"_id": "AAAAAAFzhuRL4DGOe8I=",
-											"_parent": {
-												"$ref": "AAAAAAFzht0D4h13IlM="
-											},
-											"model": {
-												"$ref": "AAAAAAFzhuRLvjF/akE="
-											},
-											"visible": false,
-											"font": "Arial;13;0",
-											"left": 317,
-											"top": 935,
-											"width": 117.12060546875,
-											"height": 13,
-											"text": "+lw",
-											"horizontalAlignment": 0
-										},
-										{
-											"_type": "UMLAttributeView",
-											"_id": "AAAAAAFzhuRn7TJuyAk=",
-											"_parent": {
-												"$ref": "AAAAAAFzht0D4h13IlM="
-											},
-											"model": {
-												"$ref": "AAAAAAFzhuRnxjJfaPc="
-											},
-											"visible": false,
-											"font": "Arial;13;0",
-											"left": 317,
-											"top": 950,
-											"width": 117.12060546875,
-											"height": 13,
-											"text": "+liw",
-											"horizontalAlignment": 0
-										},
-										{
-											"_type": "UMLAttributeView",
-											"_id": "AAAAAAFzhuSe8DNOWok=",
-											"_parent": {
-												"$ref": "AAAAAAFzht0D4h13IlM="
-											},
-											"model": {
-												"$ref": "AAAAAAFzhuSezDM/yrA="
-											},
-											"visible": false,
-											"font": "Arial;13;0",
-											"left": 317,
-											"top": 965,
-											"width": 117.12060546875,
-											"height": 13,
-											"text": "+liw2",
-											"horizontalAlignment": 0
-										},
-										{
-											"_type": "UMLAttributeView",
-											"_id": "AAAAAAFzhuTUJjQueV0=",
-											"_parent": {
-												"$ref": "AAAAAAFzht0D4h13IlM="
-											},
-											"model": {
-												"$ref": "AAAAAAFzhuTUATQfSiQ="
-											},
-											"visible": false,
-											"font": "Arial;13;0",
-											"left": 317,
-											"top": 980,
-											"width": 117.12060546875,
-											"height": 13,
-											"text": "+ncmx",
-											"horizontalAlignment": 0
-										},
-										{
-											"_type": "UMLAttributeView",
-											"_id": "AAAAAAFzhuUdnTUOc8w=",
-											"_parent": {
-												"$ref": "AAAAAAFzht0D4h13IlM="
-											},
-											"model": {
-												"$ref": "AAAAAAFzhuUdcjT/Wco="
-											},
-											"visible": false,
-											"font": "Arial;13;0",
-											"left": 317,
-											"top": 995,
-											"width": 117.12060546875,
-											"height": 13,
-											"text": "+npwx",
 											"horizontalAlignment": 0
 										}
 									],
@@ -5971,24 +5773,6 @@
 									"type": ""
 								}
 							]
-						},
-						{
-							"_type": "UMLOperation",
-							"_id": "AAAAAAFzbfBOw8/Cp6Y=",
-							"_parent": {
-								"$ref": "AAAAAAFza6L+Wc+RT3Q="
-							},
-							"name": "onedbasis",
-							"documentation": "[Unkown, see fortran code]\n"
-						},
-						{
-							"_type": "UMLOperation",
-							"_id": "AAAAAAFzbfCEU8/Jz1Q=",
-							"_parent": {
-								"$ref": "AAAAAAFza6L+Wc+RT3Q="
-							},
-							"name": "onedoutput",
-							"documentation": "[Unkown, see fortran code]"
 						}
 					]
 				},
@@ -7208,36 +6992,6 @@
 						},
 						{
 							"_type": "UMLAttribute",
-							"_id": "AAAAAAFzgwjfH2J+TmI=",
-							"_parent": {
-								"$ref": "AAAAAAFzgpedSVuFCeg="
-							},
-							"name": "Energies/Thetas/Phis",
-							"documentation": "The energy, theta (incoming beam angle) and phi  (azimuthal angle) values at which the scattering will be evaluated. \n\nThese are defined over 2 lines each.\nThis can be done in 2 ways:\n(1)\n\n8,0,0      \n_,\n\nIf the first line is given as (initial value, step delta, number of steps) this range of values will be tested and the second line will be redundant. In this case, all combinations of the energy, theta and phi values will be evaluated.\n\nOR\n(2)\n\n_,0,n\n(V1,V2,V3...Vn)    \n  \nIf  the forst row contains any number, followed by a 0 followed by a number, the values given on the 2nd line will be taken. In this case, all combinations of energy, theta and phi are not taken; the first energy specified will be evalueated with the first theta and the first phi only, the second energy with the second theta and the second phi only, and so on.\n\nNOTE: The two imput types CANNOT be mixed. Doing so will cause the code to hang ",
-							"type": ""
-						},
-						{
-							"_type": "UMLAttribute",
-							"_id": "AAAAAAFzgwnSomLtrq4=",
-							"_parent": {
-								"$ref": "AAAAAAFzgpedSVuFCeg="
-							},
-							"name": "Thetas",
-							"documentation": "Theta is the incoming beam angle. Specification works similarly to the energies.\n[TODO:Check that this is true]",
-							"type": ""
-						},
-						{
-							"_type": "UMLAttribute",
-							"_id": "AAAAAAFzgwqiQWNK4Pk=",
-							"_parent": {
-								"$ref": "AAAAAAFzgpedSVuFCeg="
-							},
-							"name": "Phis",
-							"documentation": "Phi is the azimuthal angle. The range is given in a similar way to the energies\n[TODO: check that this is true]\n",
-							"type": ""
-						},
-						{
-							"_type": "UMLAttribute",
 							"_id": "AAAAAAFzgwsqw2OIaKY=",
 							"_parent": {
 								"$ref": "AAAAAAFzgpedSVuFCeg="
@@ -7623,66 +7377,6 @@
 							"name": "nfcx",
 							"documentation": "max (?) potential fourier components",
 							"type": ""
-						},
-						{
-							"_type": "UMLAttribute",
-							"_id": "AAAAAAFzhuQPczCfdL4=",
-							"_parent": {
-								"$ref": "AAAAAAFzht0D4B1viJs="
-							},
-							"name": "npmax",
-							"documentation": "NAG routine E04JAF: no of parameters\n[ Purpose unkown ]",
-							"type": ""
-						},
-						{
-							"_type": "UMLAttribute",
-							"_id": "AAAAAAFzhuRLvjF/akE=",
-							"_parent": {
-								"$ref": "AAAAAAFzht0D4B1viJs="
-							},
-							"name": "lw",
-							"documentation": "[ Purpose unkown ]",
-							"type": ""
-						},
-						{
-							"_type": "UMLAttribute",
-							"_id": "AAAAAAFzhuRnxjJfaPc=",
-							"_parent": {
-								"$ref": "AAAAAAFzht0D4B1viJs="
-							},
-							"name": "liw",
-							"documentation": "[ Purpose unkown ]",
-							"type": ""
-						},
-						{
-							"_type": "UMLAttribute",
-							"_id": "AAAAAAFzhuSezDM/yrA=",
-							"_parent": {
-								"$ref": "AAAAAAFzht0D4B1viJs="
-							},
-							"name": "liw2",
-							"documentation": "NAG routine E05CCF parameter\n\n[ Purpose unkown ]",
-							"type": ""
-						},
-						{
-							"_type": "UMLAttribute",
-							"_id": "AAAAAAFzhuTUATQfSiQ=",
-							"_parent": {
-								"$ref": "AAAAAAFzht0D4B1viJs="
-							},
-							"name": "ncmx",
-							"documentation": "Maximum number of experimental conditions",
-							"type": ""
-						},
-						{
-							"_type": "UMLAttribute",
-							"_id": "AAAAAAFzhuUdcjT/Wco=",
-							"_parent": {
-								"$ref": "AAAAAAFzht0D4B1viJs="
-							},
-							"name": "npwx",
-							"documentation": "The maximum number of potential well curves",
-							"type": ""
 						}
 					]
 				},
@@ -7762,9 +7456,9 @@
 										"$ref": "AAAAAAFzcRhbKblUxd0="
 									},
 									"font": "Arial;13;0",
-									"left": 70.97900390625,
+									"left": 66.58642578125,
 									"top": 10,
-									"width": 152.74072265625,
+									"width": 138.185546875,
 									"height": 13,
 									"text": "FortranMultiscatSequence"
 								},
@@ -7777,7 +7471,7 @@
 									"font": "Arial;13;1",
 									"left": 5,
 									"top": 10,
-									"width": 60.97900390625,
+									"width": 56.58642578125,
 									"height": 13,
 									"text": "interaction"
 								}

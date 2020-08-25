@@ -230,47 +230,6 @@ Comments: looks like a debugging variable that was later commented out of most o
           
           <tr>
             <td>public</td>
-            <td><a href="1de78cc4ee89371743a4101d03c8c509.html">Energies/Thetas/Phis</a></td>
-            <td><span class='label label-info'>none</span></td>
-            <td><p>The energy, theta (incoming beam angle) and phi  (azimuthal angle) values at which the scattering will be evaluated. </p>
-
-<p>These are defined over 2 lines each.
-This can be done in 2 ways:
-(1)</p>
-
-<p>8,0,0    <br/>_,</p>
-
-<p>If the first line is given as (initial value, step delta, number of steps) this range of values will be tested and the second line will be redundant. In this case, all combinations of the energy, theta and phi values will be evaluated.</p>
-
-<p>OR
-(2)</p>
-
-<p>_,0,n
-(V1,V2,V3...Vn)    </p>
-
-<p>If  the forst row contains any number, followed by a 0 followed by a number, the values given on the 2nd line will be taken. In this case, all combinations of energy, theta and phi are not taken; the first energy specified will be evalueated with the first theta and the first phi only, the second energy with the second theta and the second phi only, and so on.</p>
-
-<p>NOTE: The two imput types CANNOT be mixed. Doing so will cause the code to hang </p></td>
-          </tr>
-          
-          <tr>
-            <td>public</td>
-            <td><a href="4c046cb822abbcfa9ea2a85fece78533.html">Thetas</a></td>
-            <td><span class='label label-info'>none</span></td>
-            <td><p>Theta is the incoming beam angle. Specification works similarly to the energies.
-[TODO:Check that this is true]</p></td>
-          </tr>
-          
-          <tr>
-            <td>public</td>
-            <td><a href="943599ca341b89adcaf88fe389fd0ce1.html">Phis</a></td>
-            <td><span class='label label-info'>none</span></td>
-            <td><p>Phi is the azimuthal angle. The range is given in a similar way to the energies
-[TODO: check that this is true]</p></td>
-          </tr>
-          
-          <tr>
-            <td>public</td>
             <td><a href="ceac18351c60d05b240128a4e0fd5895.html">a1</a></td>
             <td><span class='label label-info'>none</span></td>
             <td><p>Length of real space lattice vector along axis:</p>
