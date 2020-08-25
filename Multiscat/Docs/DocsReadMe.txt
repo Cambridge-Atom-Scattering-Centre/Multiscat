@@ -8,7 +8,9 @@ The structure of the HTML docs is not perfect and some the information is in awk
 try clicking everything to get familiar with the structure, a lot of the names act like links 
 to info pages. Under the "DependancyTree" there is an overall inheritance diagram as well as a 
 description for each function and file. The "FlowChart" contains a diagram showing hoe the functions
-are executed in sequency when the code is run. 
+are executed in sequency when the code is run. Please ignore "Properties" and "Relationships", the 
+important information is under the "Description", "Attributes" and some of the "Owned Elements" 
+headings.
 
 To edit the ULM documents the software "StarUML" was used (can be found for free here 
 http://staruml.io/ at the time of writing). This allows .mdj files to be opened. The documentation
