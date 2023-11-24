@@ -31,7 +31,7 @@ z0 = 1.0; % z offset
 V0 = D*exp(2*alpha*(z0-z))-2*D*exp(alpha*(z0-z));
 
 % Quick plot of the uncorrugated part of the potential
-if false
+if true
     figure
     plot(z, V0);
     xlabel('z/A')
