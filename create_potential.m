@@ -29,14 +29,18 @@ z0 = 1.0; % z offset
 
 % now assign values to V0 - the Morse potential without the corrugation
 V0 = D*exp(2*alpha*(z0-z))-2*D*exp(alpha*(z0-z));
-figure
-plot(z, V0);
-xlabel('z/A')
-ylabel('V/meV')
-ylim([-20, 100])
-grid on
-title('Uncorrugated part of the potential')
-V0 = repmat(reshape(V0,1,1,[]),size(V,1),size(V,2),1);
+
+% Quick plot of the uncorrugated part of the potential
+if true
+    figure
+    plot(z, V0);
+    xlabel('z/A')
+    ylabel('V/meV')
+    ylim([-20, 100])
+    grid on
+    title('Uncorrugated part of the potential')
+    V0 = repmat(reshape(V0,1,1,[]),size(V,1),size(V,2),1);
+end
 
 % repeat matrix V0 to prepare to add it to V
 V = V + V0;
@@ -52,7 +56,8 @@ end
 beta = 0.10;
 V1 = -2*beta*D*exp(2*alpha*(z0-z));
 
-if true
+% Quick plot of the corrugated part of the potential
+if false
     figure
     plot(z, V1)
     xlabel('z/A')
@@ -62,16 +67,11 @@ if true
     title('Corrugated part of the potential')
 end
 
-dimple = false;
-
 % Add the extra corrugated part according to the corrugation Q
 Q = zeros(size(X));
 for ia1=1:length(i1)
     for ia2=1:length(i2)
         Q(ia1,ia2) = cos(2*pi*X(ia1,ia2)/a)+cos(2*pi*Y(ia1,ia2)/a);
-        if dimple
-            Q(ia1, ia2) = Q(ia1, ia2) + Gaussian2D(X(ia1,ia2), Y(ia1,ia2), [4.14, 4.14], 1, 8);
-        end
         for indz=1:length(z)
             V(ia1,ia2,indz) = V(ia1,ia2,indz)+V1(indz)*Q(ia1,ia2);
             %add V1*Q to V
@@ -79,55 +79,22 @@ for ia1=1:length(i1)
     end
 end
 
-
 %% Plot the potential
 
+% Plot of a slice of the potential in the nth row
+row = 1;
 figure
-contourf(z,  linspace(0, a*how_many_cell, gridp*how_many_cell), reshape(V(1,:,:), [gridp*how_many_cell,100]), linspace(-20,100,24))
+contourf(z,  linspace(0, a*how_many_cell, gridp*how_many_cell), ...
+    reshape(V(row,:,:), [gridp*how_many_cell,100]), linspace(-20,100,24))
 xlabel('z/A')
 ylabel('x/A')
 colorbar
 xlim([-1,4])
 title('Potential in z, used in simulation')
 
-if false
-    figure
-    contourf(z,  linspace(0, 4*a, 4*gridp), repmat(reshape(V(1,:,:), [gridp,100]),[4,1]), linspace(-20,100,24))
-    xlabel('z/A')
-    ylabel('x/A')
-    colorbar
-    xlim([-1,4])
-    title('Potential in z, extended')
-end
+% Linearly interpolated equipotential plot
+equipotential_plot('V', V, 'z', z, 'a', a*how_many_cell)
 
-inds0 = zeros(gridp*how_many_cell,gridp*how_many_cell);
-
-for ia1=1:length(i1)
-    for ia2=1:length(i2)
-        for indz=1:length(z)-1
-            if V(ia1,ia2,indz) > 0 && V(ia1,ia2,indz+1) < 0
-                m = (V(ia1,ia2,indz) - V(ia1, ia2, indz+1))/(indz - (indz+1));
-                c = V(ia1, ia2,indz) - m*indz;
-                inds0(ia1,ia2) = -c/m;
-            end
-        end
-    end
-end
-pot_height = z(1) + inds0*(z(2)-z(1));
-
-figure
-surf(linspace(0, a*how_many_cell, gridp*how_many_cell), linspace(0, a*how_many_cell, gridp*how_many_cell), pot_height)
-xlabel('x/A')
-ylabel('y/A')
-title('Equipotential V=0, used in simulation')
-
-if false
-    figure
-    surf(linspace(0, 4*a, 4*gridp), linspace(0, 4*a, 4*gridp), repmat(pot_height, [4,4]))
-    xlabel('x/A')
-    ylabel('y/A')
-    title('Equipotential V=0, extended')
-end
 
 %% MultiScat format
 % now we have got the matrix V, it's time to create the files used by
