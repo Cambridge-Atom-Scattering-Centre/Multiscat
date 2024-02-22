@@ -13,9 +13,9 @@ a2=[0, a];
 % reciprocal base lattice vectors
 [b1, b2] = Reciprocal(a1, a2);
 % grid points parallel to the surface in one dimension
-gridp = 16;
+gridp = 32;
 % point grids in a1 and a2 directions
-how_many_cell = 1;
+how_many_cell = 2;
 i1 = 1:gridp*how_many_cell;
 i2 = 1:gridp*how_many_cell;
 
@@ -52,7 +52,7 @@ end
 beta = 0.10;
 V1 = -2*beta*D*exp(2*alpha*(z0-z));
 
-if false
+if true
     figure
     plot(z, V1)
     xlabel('z/A')
