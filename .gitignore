@@ -1,5 +1,6 @@
 *.png
 *.out
 *.o
-*.f
+*.pdf
+*.eps
 *.in
