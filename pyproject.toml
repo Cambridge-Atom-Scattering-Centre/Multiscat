@@ -11,9 +11,7 @@ dependencies = [
   "multiscat",
   "numpy>=2.0.0,<3.0.0",
     "scipy>=1.14.0,<2.0.0",
-    "slate_core @ git+https://github.com/Matt-Ord/slate.git@e9669d0",
-    "slate_quantum @ git+https://github.com/Matt-Ord/slate_quantum.git@45fb33b22f86840650680d4fac385369349cd0c5",
-]
+    ]
 
 [tool.uv]
 package = false

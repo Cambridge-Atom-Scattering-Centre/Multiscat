@@ -197,8 +197,8 @@ requires-dist = [
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.2.2,<9.0.0" },
     { name = "ruff", marker = "extra == 'dev'" },
     { name = "scipy", specifier = ">=1.14.0,<2.0.0" },
-    { name = "slate-core", git = "https://github.com/Matt-Ord/slate.git?rev=e9669d0" },
-    { name = "slate-quantum", git = "https://github.com/Matt-Ord/slate_quantum.git?rev=45fb33b22f86840650680d4fac385369349cd0c5" },
+    { name = "slate-core", git = "https://github.com/Matt-Ord/slate.git?rev=58261ad" },
+    { name = "slate-quantum", git = "https://github.com/Matt-Ord/slate_quantum.git?rev=8775660" },
     { name = "tqdm", specifier = ">=4.67.1" },
 ]
 provides-extras = ["dev"]
@@ -214,8 +214,6 @@ dependencies = [
     { name = "pandas" },
     { name = "scipy" },
     { name = "seaborn" },
-    { name = "slate-core" },
-    { name = "slate-quantum" },
 ]
 
 [package.dev-dependencies]
@@ -233,8 +231,6 @@ requires-dist = [
     { name = "pandas" },
     { name = "scipy", specifier = ">=1.14.0,<2.0.0" },
     { name = "seaborn" },
-    { name = "slate-core", git = "https://github.com/Matt-Ord/slate.git?rev=e9669d0" },
-    { name = "slate-quantum", git = "https://github.com/Matt-Ord/slate_quantum.git?rev=45fb33b22f86840650680d4fac385369349cd0c5" },
 ]
 
 [package.metadata.requires-dev]
@@ -502,7 +498,7 @@ wheels = [
 [[package]]
 name = "slate-core"
 version = "0.0.2"
-source = { git = "https://github.com/Matt-Ord/slate.git?rev=e9669d0#e9669d039de8a5ab68baa120c610503c469a8456" }
+source = { git = "https://github.com/Matt-Ord/slate.git?rev=58261ad6141e166804322083bac390574f0312ac#58261ad6141e166804322083bac390574f0312ac" }
 dependencies = [
     { name = "numpy" },
     { name = "scipy" },
@@ -511,7 +507,7 @@ dependencies = [
 [[package]]
 name = "slate-quantum"
 version = "0.0.1"
-source = { git = "https://github.com/Matt-Ord/slate_quantum.git?rev=45fb33b22f86840650680d4fac385369349cd0c5#45fb33b22f86840650680d4fac385369349cd0c5" }
+source = { git = "https://github.com/Matt-Ord/slate_quantum.git?rev=8775660#87756606065ab6eb45bd71e8bae06d9bd1a68e05" }
 dependencies = [
     { name = "numpy" },
     { name = "scipy" },

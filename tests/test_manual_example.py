@@ -82,14 +82,14 @@ def _multiscat_conf_from_condition(
     condition: ScatteringCondition, config: OptimizationConfig,
 ) -> str:
     mass_amu = condition.mass / atomic_mass
-    _a = condition.metadata.children[2].spacing
+    _a = condition.metadata.children[2].domain
     z_start_angstrom = _a.start / angstrom
     z_end_angstrom = (_a.start + _a.delta) / angstrom
     nzfixed = condition.metadata.children[2].fundamental_size
     metadata_x01, _ = split_scattering_metadata(condition.metadata)
     directions = condition.metadata.extra.vectors
-    x_vector = np.asarray(directions[0]) * metadata_x01.children[0].spacing.delta
-    y_vector = np.asarray(directions[1]) * metadata_x01.children[1].spacing.delta
+    x_vector = np.asarray(directions[0]) * metadata_x01.children[0].domain.delta
+    y_vector = np.asarray(directions[1]) * metadata_x01.children[1].domain.delta
     a1_angstrom = x_vector[0] / angstrom
     a2_angstrom = y_vector[0] / angstrom
     b2_angstrom = y_vector[1] / angstrom
@@ -197,7 +197,7 @@ def _raw_potential_in_input_file_convention(
     )
     potential_lobatto = (
         potential_lobatto
-        / condition.metadata.children[2].quadrature_weights[np.newaxis, np.newaxis, :]
+        * (condition.metadata.children[2].basis_weights[np.newaxis, np.newaxis, :])
         / (electron_volt * 10**-3)
     )
 
@@ -340,7 +340,7 @@ def test_manual_lif_potential_matches_generated_reference(tmp_path: Path) -> Non
     assert data_line_count % nfc == 0
     nz_input = data_line_count // nfc
 
-    spacing = condition.metadata.children[2].spacing
+    spacing = condition.metadata.children[2].domain
     z_start_angstrom = spacing.start / angstrom
     z_end_angstrom = (spacing.start + spacing.delta) / angstrom
 
