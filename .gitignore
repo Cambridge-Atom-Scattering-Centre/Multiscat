@@ -1,0 +1,15 @@
+# # Fortran build artifacts
+*.o
+*.obj
+*.mod
+*.smod
+
+# Built executable
+multiscat
+
+# Generated run outputs
+diffrac*.out
+
+# Python test/cache artifacts
+__pycache__/
+.pytest_cache/

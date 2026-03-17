@@ -1,0 +1,23 @@
+{
+    "name": "Multiscat Dev Container",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "features": {
+        "ghcr.io/va-h/devcontainers-features/uv:1": {
+            "shellautocompletion": true,
+            "version": "latest"
+        },
+        "ghcr.io/devcontainers/features/common-utils:2": {}
+    },
+    "postCreateCommand": "bash -lc 'set -euo pipefail; uv python install 3.14; uv sync'",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-vscode.cpptools",
+                "fortran-lang.linter-gfortran",
+                "charliermarsh.ruff"
+            ]
+        }
+    }
+}

@@ -1,0 +1,207 @@
+from __future__ import annotations
+
+import math
+import re
+import shutil
+import subprocess
+from pathlib import Path
+
+import numpy as np
+from scipy.constants import (  # type: ignore[import-untyped]
+    angstrom,
+    atomic_mass,
+    electron_volt,
+    hbar,
+    physical_constants,
+)
+from slate_core.metadata import fundamental_stacked_nk_points
+from slate_quantum import operator
+
+from multiscat.basis import (
+    scattering_metadata_from_stacked_delta_x,
+    split_scattering_metadata,
+)
+from multiscat.config import OptimizationConfig, ScatteringCondition
+
+
+ROOT = Path(__file__).resolve().parents[1]
+TESTS_DIR = Path(__file__).resolve().parent
+
+
+def _parse_intensities(output_file: Path) -> dict[tuple[int, int], float]:
+    pattern = re.compile(r"^#\s+(-?\d+)\s+(-?\d+)\s+([0-9.E+-]+)\s*$")
+    intensities: dict[tuple[int, int], float] = {}
+    for line in output_file.read_text().splitlines():
+        match = pattern.match(line)
+        if not match:
+            continue
+        h = int(match.group(1))
+        k = int(match.group(2))
+        intensities[(h, k)] = float(match.group(3))
+    return intensities
+
+
+def _scat_cond_from_condition(condition: ScatteringCondition) -> str:
+    scattering_vector = np.asarray(condition.incident_k)
+    scattering_magnitude = float(np.linalg.norm(scattering_vector))
+    assert scattering_magnitude > 0, "Incident wavevector magnitude must be non-zero"
+
+    energy_meV = (
+        ((hbar**2 * scattering_magnitude**2) / (2 * condition.mass))
+        / electron_volt
+        * 10**3
+    )
+    theta_degrees = np.degrees(
+        np.arccos(np.clip(scattering_vector[2] / scattering_magnitude, -1.0, 1.0)),
+    )
+    phi_degrees = np.degrees(np.arctan2(scattering_vector[1], scattering_vector[0]))
+
+    scat_cond_lines = [
+        "Comment line: Energy, theta, phi   This file defines the combination of conditions to be used by multiscat",
+        f"{energy_meV:.10g},{theta_degrees:.10g},{phi_degrees:.10g}",
+    ]
+    return "\n".join(scat_cond_lines) + "\n"
+
+
+def _ordered_fourier_pairs_from_condition(
+    condition: ScatteringCondition,
+) -> list[tuple[int, int]]:
+    metadata_x01, _ = split_scattering_metadata(condition.metadata)
+    nx, ny = fundamental_stacked_nk_points(metadata_x01)
+    pairs = {(int(ix), int(iy)) for ix, iy in zip(nx, ny, strict=True)}
+    return sorted(pairs, key=lambda p: (p[1], p[0]))
+
+
+def fourier_labels_from_condition(condition: ScatteringCondition) -> str:
+    ordered_pairs = _ordered_fourier_pairs_from_condition(condition)
+    lines = [f"{ix} {iy}" for ix, iy in ordered_pairs]
+    return "\n".join(lines) + "\n"
+
+
+def _multiscat_conf_from_condition(
+    condition: ScatteringCondition, config: OptimizationConfig
+) -> str:
+    mass_amu = condition.mass / atomic_mass
+    _a = condition.metadata.children[2].spacing
+    z_start_angstrom = _a.start / angstrom
+    z_end_angstrom = (_a.start + _a.delta) / angstrom
+    _b = condition.metadata.children[2].fundamental_size
+
+    metadata_x01, _ = split_scattering_metadata(condition.metadata)
+    directions = condition.metadata.extra.vectors
+    x_vector = np.asarray(directions[0]) * metadata_x01.children[0].spacing.delta
+    y_vector = np.asarray(directions[1]) * metadata_x01.children[1].spacing.delta
+    a1_angstrom = x_vector[0] / angstrom
+    a2_angstrom = y_vector[0] / angstrom
+    b2_angstrom = y_vector[1] / angstrom
+
+    nfc = len(_ordered_fourier_pairs_from_condition(condition))
+    lines = [
+        "FourierLabels.in \t!The fourier labels input file",
+        "scatCond.in\t! The scattering conditions input file",
+        "1       !itest=1 enables output of each diffraction intensity; itest=0 outputs specular only",
+        "0       !gmres preconditioner flag (ipc)",
+        f"{int(np.log10(1 / config.precision))}       !number of significant figures convergence (nsf)",
+        f"{nfc}       !total number of fc",
+        f"{z_start_angstrom:.10g},{z_end_angstrom:.10g}       !integration range (zmin,zmax)",
+        "1.470180e+01       !potential well depth (vmin)",
+        "120       !max -ve energy of closed channels (dmax)",
+        "120       !max index of channels (imax)",
+        f'{a1_angstrom:.10g}       !a1 (see subroutine basis in "scatsub.f")',
+        f"{a2_angstrom:.10g}       !a2",
+        f"{b2_angstrom:.10g}       !b2",
+        f"{_b}       !number of fixed z points,nzfixed",
+        f"{z_start_angstrom:.10g}       !stepzmin  (max and min z values of fixed z points)",
+        f"{z_end_angstrom:.10g}       !stepzmax",
+        "10001       !startindex",
+        "10001       !endindex",
+        f"{mass_amu:.10g}       !helium mass",
+    ]
+    return "\n".join(lines) + "\n"
+
+
+def _run_manual_example(tmp_path: Path) -> Path:
+    HELIUM_MASS = physical_constants["alpha particle mass"][0]
+    UNIT_CELL = 2.84 * angstrom
+    Z_HEIGHT = 8 * angstrom
+
+    MORSE_PARAMETERS = operator.build.CorrugatedMorseParameters(
+        depth=7.63 * electron_volt * 10**-3,
+        height=0.91 * angstrom,
+        offset=1.0 * angstrom,
+        beta=0.05,
+    )
+    metadata = scattering_metadata_from_stacked_delta_x(
+        (
+            np.array([UNIT_CELL, 0, 0]),
+            np.array([0, UNIT_CELL, 0]),
+            np.array([0, 0, Z_HEIGHT]),
+        ),
+        (32, 32, 100),
+    )
+    # This is taken from https://doi.org/10.1039/FT9908601641
+    # and is a reproduction of the Wolken 4He-LiF problem in table 1,
+    # originally simulated in https://doi.org/10.1063/1.1679617.
+    condition = ScatteringCondition.from_angles(
+        mass=HELIUM_MASS,
+        energy=20 * electron_volt * 10**-3,
+        theta=np.deg2rad(30),
+        phi=0,
+        potential=operator.build.corrugated_morse_potential(
+            metadata,
+            MORSE_PARAMETERS,
+        ),
+    )
+    config = OptimizationConfig(precision=1e-5, max_iterations=1000)
+    inputs = [
+        "pot10001.in",
+    ]
+    for filename in inputs:
+        shutil.copy2(TESTS_DIR / filename, tmp_path / filename)
+
+    (tmp_path / "scatCond.in").write_text(_scat_cond_from_condition(condition))
+    (tmp_path / "FourierLabels.in").write_text(fourier_labels_from_condition(condition))
+    (tmp_path / "Multiscat.conf").write_text(
+        _multiscat_conf_from_condition(condition, config)
+    )
+
+    binary = ROOT / "multiscat"
+    if not binary.exists():
+        subprocess.run(["make"], cwd=ROOT, check=True)
+
+    subprocess.run([str(binary), "Multiscat.conf"], cwd=tmp_path, check=True)
+    output_file = tmp_path / "diffrac10001.out"
+    assert output_file.exists(), "Expected diffrac10001.out to be generated"
+    return output_file
+
+
+def test_manual_lif_exercise_intensities_2(tmp_path: Path) -> None:
+    output_file = _run_manual_example(tmp_path)
+    intensities = _parse_intensities(output_file)
+
+    expected = {
+        (0, 0): 0.025,
+        (-2, -1): 0.083,
+        (-2, 1): 0.083,
+        (-1, 0): 0.011,
+        (-1, -2): 0.054,
+        (-1, 2): 0.054,
+        (1, 0): 0.028,
+        (-3, 0): 0.020,
+        (0, -1): 0.020,
+        (0, 1): 0.020,
+        (-2, -2): 0.048,
+        (-2, 2): 0.048,
+        (-2, 0): 0.029,
+        (-3, -1): 0.029,
+        (-3, 1): 0.029,
+        (0, -2): 0.022,
+        (0, 2): 0.022,
+        (-4, 0): 0.002,
+    }
+
+    for spot, expected_value in expected.items():
+        assert spot in intensities, f"Missing diffraction spot {spot}"
+        assert math.isclose(intensities[spot], expected_value, abs_tol=0.002)
+
+    assert math.isclose(sum(intensities.values()), 1.0, abs_tol=1e-6)
