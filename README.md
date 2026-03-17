@@ -26,3 +26,6 @@ Clean all gitignored files (build artifacts, caches, outputs, etc.):
 ```bash
 git clean -fdX
 ```
+
+
+Next steps: convert the input potential into lobatto basis, and move lobatto conversion logic into python side. Add refgression test.

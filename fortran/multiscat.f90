@@ -174,8 +174,13 @@ program multiscat
            
         call tshape (zmin,zmax,m,w,z,t)
       
-        !interpolate vfcs to required z positions
-        call potent(stepzmin,stepzmax,nzfixed,vfcfixed,nfc,vfc,m,z)
+        !Input potential must already be on the Lobatto z grid.
+        if (nzfixed.ne.m) stop 'ERROR: nzfixed must equal Lobatto grid size m.'
+        do i=1,nfc
+          do j=1,m
+            vfc(j,i)=vfcfixed(j,i)
+          end do
+        end do
     
         !get reciprocal lattice points    (also calculate how many channels are required for the calculation) 
         call basis(d,ix,iy,n,n00,dmax,imax)
