@@ -10,9 +10,6 @@ FORTRAN_DIR  = fortran
 multiscat:		multiscat.o scatsub.o diagsub.o potsub.o
 			gfortran ${FFLAGS} -o multiscat multiscat.o scatsub.o diagsub.o potsub.o
 
-pot2lobatto:		scatsub.o diagsub.o potsub.o ${FORTRAN_DIR}/pot2lobatto.f90 ${FORTRAN_DIR}/multiscat.inc
-			gfortran ${FFLAGS} -I${FORTRAN_DIR} -o pot2lobatto ${FORTRAN_DIR}/pot2lobatto.f90 scatsub.o diagsub.o potsub.o
-
 multiscat.o:		${FORTRAN_DIR}/multiscat.f90 ${FORTRAN_DIR}/multiscat.inc
 			gfortran -c ${FFLAGS} -I${FORTRAN_DIR} -o multiscat.o ${FORTRAN_DIR}/multiscat.f90
 
