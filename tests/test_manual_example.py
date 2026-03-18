@@ -273,7 +273,7 @@ def _manual_example_condition() -> tuple[ScatteringCondition, OptimizationConfig
     return condition, config
 
 
-def _run_manual_example(tmp_path: Path) -> Path:
+def _run_manual_example(tmp_path: Path) -> dict[tuple[int, int], float]:
     condition, config = _manual_example_condition()
 
     binary = ROOT / "multiscat"
@@ -290,81 +290,34 @@ def _run_manual_example(tmp_path: Path) -> Path:
     subprocess.run([str(binary), "Multiscat.conf"], cwd=tmp_path, check=True)
     output_file = tmp_path / "diffrac10001.out"
     assert output_file.exists(), "Expected diffrac10001.out to be generated"
-    return output_file
+    return  _parse_intensities(output_file)
 
 
 def test_manual_lif_exercise_intensities(tmp_path: Path) -> None:
-    output_file = _run_manual_example(tmp_path)
-    intensities = _parse_intensities(output_file)
+    intensities = _run_manual_example(tmp_path)
 
-    expected = {
-        (0, 0): 0.025,
-        (-2, -1): 0.083,
-        (-2, 1): 0.083,
-        (-1, 0): 0.011,
-        (-1, -2): 0.054,
-        (-1, 2): 0.054,
-        (1, 0): 0.028,
-        (-3, 0): 0.020,
-        (0, -1): 0.020,
-        (0, 1): 0.020,
-        (-2, -2): 0.048,
-        (-2, 2): 0.048,
-        (-2, 0): 0.029,
-        (-3, -1): 0.029,
-        (-3, 1): 0.029,
-        (0, -2): 0.022,
-        (0, 2): 0.022,
-        (-4, 0): 0.002,
-    }
 
-    for spot, expected_value in expected.items():
-        assert spot in intensities, f"Missing diffraction spot {spot}"
-        assert math.isclose(intensities[spot], expected_value, abs_tol=0.001)
+
 
     assert math.isclose(sum(intensities.values()), 1.0, abs_tol=1e-6)
 
+    expected_from_file = _parse_intensities(TESTS_DIR / Path("expected_intensities.txt"))
+    for spot, expected_value in expected_from_file.items():
+        assert spot in intensities, f"Missing diffraction spot {spot}"
+        assert math.isclose(intensities[spot], expected_value, abs_tol=1e-5)
 
-def test_manual_lif_potential_matches_generated_reference(tmp_path: Path) -> None:
+
+def test_raw_potential_in_input_file_convention() -> None:
     condition, _ = _manual_example_condition()
     from_condition = _raw_potential_in_input_file_convention(condition)
 
-    reference_potential = TESTS_DIR / "pot10001.in"
-    converter = ROOT / "pot2lobatto"
-    if not converter.exists():
-        subprocess.run(["make", "pot2lobatto"], cwd=ROOT, check=True)
-
-    nfc = len(_ordered_fourier_pairs_from_condition(condition))
-    data_line_count = len(reference_potential.read_text().splitlines()) - 5
-    assert data_line_count > 0
-    assert data_line_count % nfc == 0
-    nz_input = data_line_count // nfc
-
-    spacing = condition.metadata.children[2].domain
-    z_start_angstrom = spacing.start / angstrom
-    z_end_angstrom = (spacing.start + spacing.delta) / angstrom
-
-    converted_reference = tmp_path / "pot10001_lobatto.in"
-    subprocess.run(
-        [
-            str(converter),
-            str(reference_potential),
-            str(converted_reference),
-            str(nfc),
-            str(nz_input),
-            f"{z_start_angstrom:.10g}",
-            f"{z_end_angstrom:.10g}",
-        ],
-        cwd=tmp_path,
-        check=True,
-    )
-    expected = _load_potential_file_as_array(converted_reference)
+    reference_potential = TESTS_DIR / Path("pot10001.in")
+    expected = _load_potential_file_as_array(reference_potential)
 
     assert expected.shape == from_condition.shape
     np.testing.assert_allclose(
         (from_condition),
         (expected),
-        rtol =1e-1,
-        atol=2
+        rtol =1e-5
         
     )
