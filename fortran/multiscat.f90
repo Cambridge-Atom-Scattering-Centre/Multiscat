@@ -8,6 +8,7 @@
 ! Modified by F.Bello and E. Pierzchala summer 2020
 
 program multiscat
+  use multiscat_io_loaders
   implicit double precision (a-h,o-z)
   include 'multiscat.inc'
 
@@ -27,7 +28,12 @@ program multiscat
   dimension d(nmax), e(mmax), f(mmax,nmax), t(mmax,mmax)
   parameter (hbarsq = 4.18020)
   integer argc, iarg
-  integer endOfFile
+  integer icond
+
+  type(OptimizationFileData) :: optimization_data
+  type(ScatteringConditionsData) :: scatt_conditions_data
+  type(FixedPotentialData) :: potential_data
+
   !Variables for potential, represented as fourier data
   complex*16 vfcfixed(NZFIXED_MAX,NVFCFIXED_MAX)   !FC's at the fixed points
 
@@ -82,35 +88,23 @@ program multiscat
   print *, ''
 
   !=====================read in parameters from config file==========================
+  rmlmda = 2.0d0*hemass/hbarsq
+  call load_optimization_file(optimizationFile, optimization_data)
+  call load_scattering_conditions_file(scattCondFile, scatt_conditions_data)
+  call load_fixed_potential(fourierfile, rmlmda, potential_data)
 
-  !read in parameters from the config file and make preliminary calculations
-  open (80,file=optimizationFile)
+  
+  hemass = scatt_conditions_data%helium_mass
 
-  open (81, file=scattCondFile)
-  read (81, *)!Skip the first line of conditions file
-  read (81, *) hemass
-  print *, 'Helium mass = ',hemass
-
-  read (80,*) itest
-  print *, 'Output mode = ',itest
-  read (80,*) ipc
-  if (ipc.lt.0) ipc = 0   !only ipc = 0 and 1 are implemented in gmres:
-  if (ipc.gt.1) ipc = 1
-  print *, 'GMRES preconditioner flag = ',ipc
-  read (80,*) nsf
-  if (nsf.lt.2) nsf = 2   !place an upper and lower limit on the precision
-  if (nsf.gt.5) nsf = 10
+  itest = optimization_data%output_mode
+  ipc = optimization_data%gmres_preconditioner_flag
+  nsf = optimization_data%convergence_significant_figures
   eps = 0.5d0*(10.0d0**(-nsf))
-  print *, 'Convergence sig. figures = ',nsf
-  print *, ''
-  read (80,*) dmax
-  print *, 'Max energy of closed channels = ',dmax
-  read (80,*) imax
-  print *, 'Max index of channels = ',imax
-  print *, ''
+  dmax = optimization_data%max_closed_channel_energy
+  imax = optimization_data%max_channel_index
   
 !===============preliminary calculation and setting up ===========================
-  rmlmda = 2.0d0*hemass/hbarsq
+
   iread=5
   iwrite=6
   ireadp=10
@@ -130,27 +124,22 @@ program multiscat
       
   !========Initialize the potential================================================
   
-    call loadfixedpot(nzfixed,nfc,ivx,ivy,nfc00,vfcfixed,fourierfile,ax,ay,bx,by,zmin,zmax)
+
     !this will read in the potential Fourier components and convert to the program units
 
-    if (nfc .gt. nfcx) then
-      print *, 'ERROR: the potential file needs more fourier components', &
-      ' than allowed by the .inc file (nfc>nfcx)'
-      stop
-    else if (nzfixed .gt. NZFIXED_MAX) then
-      print *, 'ERROR: the potential file needs more z points than', &
-      ' allowed by the .inc file (nzfixed>NZFIXED_MAX)'
-      stop
-    else if (nfc .gt. NVFCFIXED_MAX) then
-      print *, 'ERROR: the potential file needs more fourier components than', &
-      ' allowed by the .inc file (nfc>NVFCFIXED_MAX)'
-      stop
-    end if
+    nfc = potential_data%fourier_component_count
+    nzfixed = potential_data%z_point_count
+    nfc00 = potential_data%specular_component_index
+    ax = potential_data%unit_cell_ax
+    ay = potential_data%unit_cell_ay
+    bx = potential_data%unit_cell_bx
+    by = potential_data%unit_cell_by
+    zmin = potential_data%zmin
+    zmax = potential_data%zmax
 
-    print *, 'Total number of fourier components from potential = ',nfc
-    print *, 'Number of z points in fourier components (nzfixed) = ',nzfixed
-    print *, 'Unit cell vectors (A): a = (',ax,',',ay,'), b = (',bx,',',by,')'
-    print *, 'z integration range = (',zmin,',',zmax,')'
+    ivx(1:nfc) = potential_data%fourier_indices_x(1:nfc)
+    ivy(1:nfc) = potential_data%fourier_indices_y(1:nfc)
+    vfcfixed(1:nzfixed,1:nfc) = potential_data%fixed_fourier_values(1:nzfixed,1:nfc)
   
   !========Do the scaterring calculations=========================================
     !Calculate scattering over the incident conditions required
@@ -158,9 +147,10 @@ program multiscat
     print *, 'Calculating scattering for potential:',fourierfile
     print *, 'Energy / meV    Theta / deg    Phi / deg        I00         Sum ' 
    
-    do
-      read (81, *, iostat=endOfFile) ei, theta, phi !iostat checks for the end of the file
-      if (endOfFile==0) then !Normal input
+    do icond = 1, scatt_conditions_data%condition_count
+      ei = scatt_conditions_data%incident_energy_mev(icond)
+      theta = scatt_conditions_data%theta_degrees(icond)
+      phi = scatt_conditions_data%phi_degrees(icond)
 
         !Use the Lobatto z grid size from the loaded potential file.
         m = nzfixed
@@ -198,17 +188,10 @@ program multiscat
         
         ! write outputs 
         call output(ei,theta,phi,ix,iy,n,n00,d,p,itest)
-    
-      else if (endOfFile<0) then !End of file
-        print *, '-- End of scattering conditions file --'
-        if (itest.eq.1) close (21)
-        exit
-      else !Unknown error
-        print *, '#### ERROR: Invalid line found in input file  ####'
-        print *, '#### (Make sure scatCond.in does not contain empty lines) ####'
-        stop
-      end if
     end do
+
+    print *, '-- End of scattering conditions file --'
+    if (itest.eq.1) close (21)
  
 end program multiscat
 
