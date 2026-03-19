@@ -12,7 +12,8 @@ program multiscat
   include 'multiscat.inc'
 
   !Define filenames
-  character*40 inputfile,outfile,fourierfile, scattCondFile
+  character*40 optimizationFile,outfile,fourierfile, scattCondFile
+  character*80 arg
       
   !Arrays
   complex*16 x(mmax,nmax), y(mmax,nmax), vfc(mmax,nfcx)
@@ -25,6 +26,7 @@ program multiscat
   dimension p(nmax), w(mmax), z(mmax)
   dimension d(nmax), e(mmax), f(mmax,nmax), t(mmax,mmax)
   parameter (hbarsq = 4.18020)
+  integer argc, iarg
   integer endOfFile
   !Variables for potential, represented as fourier data
   complex*16 vfcfixed(NZFIXED_MAX,NVFCFIXED_MAX)   !FC's at the fixed points
@@ -43,20 +45,46 @@ program multiscat
   print *, '============================================='
   print *, ''
 
-  !get the name of the config file
-  call getarg(1,inputfile)
-  if (inputfile.eq.'') stop 'Error: you must supply a configuration file to run Multiscat.'
-  print *, 'Reading parameters from input file: ',inputfile
+  optimizationFile = ''
+  fourierfile = ''
+  scattCondFile = ''
+
+  ! Parse required CLI flags.
+  argc = command_argument_count()
+  iarg = 1
+  do while (iarg.le.argc)
+    call getarg(iarg,arg)
+    if (trim(arg).eq.'--optimization') then
+      iarg = iarg + 1
+      if (iarg.gt.argc) stop 'Error: --optimization requires a file path.'
+      call getarg(iarg,optimizationFile)
+    else if (trim(arg).eq.'--potential') then
+      iarg = iarg + 1
+      if (iarg.gt.argc) stop 'Error: --potential requires a file path.'
+      call getarg(iarg,fourierfile)
+    else if (trim(arg).eq.'--condition') then
+      iarg = iarg + 1
+      if (iarg.gt.argc) stop 'Error: --condition requires a file path.'
+      call getarg(iarg,scattCondFile)
+    else
+      stop 'Error: unrecognized argument. Use --potential, --condition, --optimization.'
+    end if
+    iarg = iarg + 1
+  end do
+
+  if (optimizationFile.eq.'') stop 'Error: you must supply --optimization <file>.'
+  if (fourierfile.eq.'') stop 'Error: you must supply --potential <file>.'
+  if (scattCondFile.eq.'') stop 'Error: you must supply --condition <file>.'
+
+  print *, 'Reading optimization parameters from input file: ',optimizationFile
+  print *, 'Loading scattering conditions from ', scattCondFile
+  print *, 'Calculating for potential input file ',trim(fourierfile)
   print *, ''
 
   !=====================read in parameters from config file==========================
 
   !read in parameters from the config file and make preliminary calculations
-  open (80,file=inputfile) 
-  
-  !Load filename for conditions
-  read (80,*) scattCondFile
-  print *, 'Loading scattering conditions from ', scattCondFile
+  open (80,file=optimizationFile)
 
   open (81, file=scattCondFile)
   read (81, *)!Skip the first line of conditions file
@@ -80,10 +108,6 @@ program multiscat
   read (80,*) imax
   print *, 'Max index of channels = ',imax
   print *, ''
-  
-  print *, ''
-  read(80,*) fourierfile
-  print *, 'Calculating for potential input file ',trim(fourierfile)
   
 !===============preliminary calculation and setting up ===========================
   rmlmda = 2.0d0*hemass/hbarsq

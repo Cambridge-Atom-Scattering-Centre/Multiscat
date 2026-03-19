@@ -85,15 +85,15 @@ def _condition_to_input_file(condition: ScatteringCondition) -> str:
     return "\n".join(scat_cond_lines) + "\n"
 
 
-def _configuration_to_input_file(config: OptimizationConfig) -> str:
+def _optimization_to_input_file(config: OptimizationConfig) -> str:
+    max_negative_energy = config.max_negative_energy / (electron_volt * 10**3) if config.max_negative_energy is not None else 120
+    max_channel_index = config.max_channel_index if config.max_channel_index is not None else 120
     lines = [
-        "scatCond.in\t! The scattering conditions input file",
         "1       !itest=1 enables output of each diffraction intensity; itest=0 outputs specular only",
         "0       !gmres preconditioner flag (ipc)",
         f"{int(np.log10(1 / config.precision))}       !number of significant figures convergence (nsf)",
-        "120       !max -ve energy of closed channels (dmax)",
-        "120       !max index of channels (imax)",
-        "pot10001.in       !potential input file",
+        f"{max_negative_energy:.10g}       !max -ve energy of closed channels (dmax)",
+        f"{max_channel_index}       !max index of channels (imax)",
     ]
     return "\n".join(lines) + "\n"
 
@@ -213,13 +213,25 @@ def _run_multiscat_cli(
 
     with tempfile.TemporaryDirectory() as temp_dir:
         tmp_path = Path(temp_dir)
-        (tmp_path / "pot10001.in").write_text(
+        (tmp_path / "potential.in").write_text(
             _potential_to_input_file(condition.potential)
         )
-        (tmp_path / "scatCond.in").write_text(_condition_to_input_file(condition))
-        (tmp_path / "Multiscat.conf").write_text(_configuration_to_input_file(config))
+        (tmp_path / "condition.in").write_text(_condition_to_input_file(condition))
+        (tmp_path / "optimization.conf").write_text(_optimization_to_input_file(config))
 
-        subprocess.run([str(binary), "Multiscat.conf"], cwd=tmp_path, check=True)
+        subprocess.run(
+            [
+                str(binary),
+                "--potential",
+                "potential.in",
+                "--condition",
+                "condition.in",
+                "--optimization",
+                "optimization.conf",
+            ],
+            cwd=tmp_path,
+            check=True,
+        )
         output_file = tmp_path / "diffrac.out"
         assert output_file.exists(), "Expected diffrac.out to be generated"
         return _parse_intensities(output_file)
