@@ -12,7 +12,7 @@ program multiscat
   include 'multiscat.inc'
 
   !Define filenames
-  character*40 inputfile,outfile,fourierfile, fourierLabelsFile, scattCondFile
+  character*40 inputfile,outfile,fourierfile, scattCondFile
       
   !Arrays
   complex*16 x(mmax,nmax), y(mmax,nmax), vfc(mmax,nfcx)
@@ -55,9 +55,7 @@ program multiscat
   !read in parameters from the config file and make preliminary calculations
   open (80,file=inputfile) 
   
-  !Load filenames for fourier labes and conditions
-  read (80,*) fourierLabelsFile
-  print *, 'Fourier labels file = ', fourierLabelsFile
+  !Load filename for conditions
   read (80,*) scattCondFile
   print *, 'Loading scattering conditions from ', scattCondFile
 
@@ -75,13 +73,9 @@ program multiscat
   if (nsf.gt.5) nsf = 10
   eps = 0.5d0*(10.0d0**(-nsf))
   print *, 'Convergence sig. figures = ',nsf
-  read (80,*) nfc
-  print *, 'Total number of fourier components to use = ',nfc
   print *, ''
   read (80,*) zmin,zmax    !this is the required integration range; later we calculate how many points in the ramge are required and the potential is interpolated to those points
   print *, 'z integration range = (',zmin,',',zmax,')'
-  read (80,*) vmin
-  print *, 'Potential well depth = ',vmin
   read (80,*) dmax
   print *, 'Max energy of closed channels = ',dmax
   read (80,*) imax
@@ -95,11 +89,7 @@ program multiscat
   read (80,*) b2       !surface lattice constant in y direction
   print *, 'Unit cell (A) = ',a1,'x',b2
 
-  read (80,*) nzfixed   ! number of z points in Fourier components of potential
-  print *, 'Number of z points in fourier components (nzfixed) = ',nzfixed
-  print *, ''           
-  read (80,*) stepzmin  !maximum and minimumn values of z in the potential file read in
-  read (80,*) stepzmax
+  print *, ''
   read(80,*) startindex !the start and end indices of the potential files to be used
   read(80,*) endindex
   print *, 'Calculating for potential input files between ',startindex,'.in and ',endindex,'.in'
@@ -116,31 +106,6 @@ program multiscat
   iwritel=11
   ireadip=12
 
-  ! Checks that parameters don't clash
-  if (nfc .gt. nfcx) then 
-    print *, 'ERROR: the .conf file needs more fourier components', &
-    ' than allowed by the .inc file (nfc>nfcx)'
-    stop
-  else if (nzfixed .gt. NZFIXED_MAX) then !not sure what something is!
-    print *, 'ERROR: the .conf file needs more (something) than', &
-    ' allowed by the .inc file (nzfixed>NZFIXED_MAX)'
-    stop
-  else if (nfc .gt. NVFCFIXED_MAX) then !not sure what something is!
-    print *, 'ERROR: the .conf file needs more (something) than', &
-    ' allowed by the .inc file (nfc>NVFCFIXED_MAX)'
-    stop
-  end if
-
-  !Label the fourier components-they are listed in 'FourierLabels' and appear 
-  !in the same order as in the potential file
-  open (98, file=fourierlabelsfile, status='old')
-
-  do i=1, nfc 
-     read (98,*)  ivx(i), ivy(i) 
-     if  ((ivx(i).eq.0) .and. (ivy(i).eq.0)) nfc00=i
-  end do
-  close (98)
-
 ! ============================================================================
 !do loop for using different potential files
   do in=startindex,endindex
@@ -154,8 +119,25 @@ program multiscat
       
   !========Initialize the potential================================================
   
-    call loadfixedpot(nzfixed,nfc,vfcfixed,fourierfile)
+    call loadfixedpot(nzfixed,nfc,ivx,ivy,nfc00,vfcfixed,fourierfile)
     !this will read in the potential Fourier components and convert to the program units
+
+    if (nfc .gt. nfcx) then
+      print *, 'ERROR: the potential file needs more fourier components', &
+      ' than allowed by the .inc file (nfc>nfcx)'
+      stop
+    else if (nzfixed .gt. NZFIXED_MAX) then
+      print *, 'ERROR: the potential file needs more z points than', &
+      ' allowed by the .inc file (nzfixed>NZFIXED_MAX)'
+      stop
+    else if (nfc .gt. NVFCFIXED_MAX) then
+      print *, 'ERROR: the potential file needs more fourier components than', &
+      ' allowed by the .inc file (nfc>NVFCFIXED_MAX)'
+      stop
+    end if
+
+    print *, 'Total number of fourier components from potential = ',nfc
+    print *, 'Number of z points in fourier components (nzfixed) = ',nzfixed
   
   !========Do the scaterring calculations=========================================
     !Calculate scattering over the incident conditions required
@@ -166,16 +148,15 @@ program multiscat
     do
       read (81, *, iostat=endOfFile) ei, theta, phi !iostat checks for the end of the file
       if (endOfFile==0) then !Normal input
-          
-        !find number of z values required
-        call findmz (emax,vmin,nsf,zmin,zmax,m)
-        if (itest.eq.1) write(21,*) 'Required number of z grid points, m = ',m
+
+        !Use the Lobatto z grid size from the loaded potential file.
+        m = nzfixed
+        if (itest.eq.1) write(21,*) 'Using z grid points from potential file, m = ',m
         if (m.gt.mmax) stop 'ERROR: m too big!'
            
         call tshape (zmin,zmax,m,w,z,t)
-      
-        !Input potential must already be on the Lobatto z grid.
-        if (nzfixed.ne.m) stop 'ERROR: nzfixed must equal Lobatto grid size m.'
+
+        !Input potential is already provided on this Lobatto z grid.
         do i=1,nfc
           do j=1,m
             vfc(j,i)=vfcfixed(j,i)

@@ -6,7 +6,6 @@
 
 # Built executable
 multiscat
-pot2lobatto
 
 # Generated run outputs
 diffrac*.out

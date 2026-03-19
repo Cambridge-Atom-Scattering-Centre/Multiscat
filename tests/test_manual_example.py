@@ -4,6 +4,7 @@ import math
 import re
 import subprocess
 from pathlib import Path
+import tempfile
 
 import numpy as np
 from slate_core import array
@@ -11,10 +12,8 @@ from scipy.constants import (  # type: ignore[import-untyped]
     angstrom,
     atomic_mass,
     electron_volt,
-    hbar,
     physical_constants,
 )
-from slate_core.metadata import fundamental_stacked_nk_points
 from slate_quantum import operator
 
 from multiscat.basis import (
@@ -70,15 +69,9 @@ def _scat_cond_from_condition(condition: ScatteringCondition) -> str:
     scattering_magnitude = float(np.linalg.norm(scattering_vector))
     assert scattering_magnitude > 0, "Incident wavevector magnitude must be non-zero"
 
-    energy_meV = (
-        ((hbar**2 * scattering_magnitude**2) / (2 * condition.mass))
-        / electron_volt
-        * 10**3
-    )
-    theta_degrees = np.degrees(
-        np.arccos(np.clip(scattering_vector[2] / scattering_magnitude, -1.0, 1.0)),
-    )
-    phi_degrees = np.degrees(np.arctan2(scattering_vector[1], scattering_vector[0]))
+    energy_meV = condition.incident_energy / (electron_volt * 10**3)
+    theta_degrees = np.degrees(condition.theta)
+    phi_degrees = np.degrees(condition.phi)
 
     scat_cond_lines = [
         "Comment line: Energy, theta, phi   This file defines the combination of conditions to be used by multiscat",
@@ -87,29 +80,14 @@ def _scat_cond_from_condition(condition: ScatteringCondition) -> str:
     return "\n".join(scat_cond_lines) + "\n"
 
 
-def _ordered_fourier_pairs_from_condition(
-    condition: ScatteringCondition,
-) -> list[tuple[int, int]]:
-    metadata_x01, _ = split_scattering_metadata(condition.metadata)
-    nx, ny = fundamental_stacked_nk_points(metadata_x01)
-    pairs = {(int(ix), int(iy)) for ix, iy in zip(nx, ny, strict=True)}
-    return sorted(pairs, key=lambda p: (p[1], p[0]))
-
-
-def fourier_labels_from_condition(condition: ScatteringCondition) -> str:
-    ordered_pairs = _ordered_fourier_pairs_from_condition(condition)
-    lines = [f"{ix} {iy}" for ix, iy in ordered_pairs]
-    return "\n".join(lines) + "\n"
-
-
 def _multiscat_conf_from_condition(
-    condition: ScatteringCondition, config: OptimizationConfig,
+    condition: ScatteringCondition,
+    config: OptimizationConfig,
 ) -> str:
     mass_amu = condition.mass / atomic_mass
     _a = condition.metadata.children[2].domain
     z_start_angstrom = _a.start / angstrom
     z_end_angstrom = (_a.start + _a.delta) / angstrom
-    nzfixed = condition.metadata.children[2].fundamental_size
     metadata_x01, _ = split_scattering_metadata(condition.metadata)
     directions = condition.metadata.extra.vectors
     x_vector = np.asarray(directions[0]) * metadata_x01.children[0].domain.delta
@@ -118,24 +96,17 @@ def _multiscat_conf_from_condition(
     a2_angstrom = y_vector[0] / angstrom
     b2_angstrom = y_vector[1] / angstrom
 
-    nfc = len(_ordered_fourier_pairs_from_condition(condition))
     lines = [
-        "FourierLabels.in \t!The fourier labels input file",
         "scatCond.in\t! The scattering conditions input file",
         "1       !itest=1 enables output of each diffraction intensity; itest=0 outputs specular only",
         "0       !gmres preconditioner flag (ipc)",
         f"{int(np.log10(1 / config.precision))}       !number of significant figures convergence (nsf)",
-        f"{nfc}       !total number of fc",
         f"{z_start_angstrom:.10g},{z_end_angstrom:.10g}       !integration range (zmin,zmax)",
-        "1.470180e+01       !potential well depth (vmin)",
         "120       !max -ve energy of closed channels (dmax)",
         "120       !max index of channels (imax)",
         f'{a1_angstrom:.10g}       !a1 (see subroutine basis in "scatsub.f")',
         f"{a2_angstrom:.10g}       !a2",
         f"{b2_angstrom:.10g}       !b2",
-        f"{nzfixed}       !number of fixed z points,nzfixed",
-        f"{z_start_angstrom:.10g}       !stepzmin  (max and min z values of fixed z points)",
-        f"{z_end_angstrom:.10g}       !stepzmax",
         "10001       !startindex",
         "10001       !endindex",
         f"{mass_amu:.10g}       !helium mass",
@@ -144,7 +115,9 @@ def _multiscat_conf_from_condition(
 
 
 def _load_potential_file_as_array(path: Path) -> np.ndarray:
-    lines = path.read_text().splitlines()[5:]
+    lines = path.read_text().splitlines()
+    data_start = next(i for i, line in enumerate(lines) if line.strip().startswith("("))
+    lines = lines[data_start:]
     return _load_potential_lines_as_array(lines)
 
 
@@ -156,15 +129,15 @@ def _load_potential_lines_as_array(lines: list[str]) -> np.ndarray:
     return np.asarray(values, dtype=np.complex128)
 
 
-
-
-
 def _potential_from_condition(condition: ScatteringCondition) -> str:
     potential_lobatto = _raw_potential_in_input_file_convention(condition)
+    nx, ny, nz = condition.metadata.shape
+    nfc = nx * ny
 
     header_lines = [
         "Generated from ScatteringCondition.potential",
-        "Generated by tests/test_manual_example.py",
+        "Metadata line follows: nfc nkx nky nzlobatto",
+        f"{nfc} {nx} {ny} {nz}",
         "Format: (real, imag)",
         "Ordering: Fourier component then z-slice",
         "Do not edit by hand",
@@ -179,19 +152,14 @@ def _potential_from_condition(condition: ScatteringCondition) -> str:
 def _raw_potential_in_input_file_convention(
     condition: ScatteringCondition,
 ) -> np.ndarray:
-    metadata_x01, _ = split_scattering_metadata(condition.metadata)
-    _, _, nz = condition.metadata.shape
-    nx_size = metadata_x01.children[0].fundamental_size
-    ny_size = metadata_x01.children[1].fundamental_size
-    nx, ny = fundamental_stacked_nk_points(metadata_x01)
-    pairs = [(int(ix), int(iy)) for ix, iy in zip(nx, ny, strict=True)]
-    pair_to_index = {pair: i for i, pair in enumerate(pairs)}
+
+    nx, ny, nz = condition.metadata.shape
 
     # Potential data from the Lobatto-basis operator is weighted in z.
     # Convert to unweighted potential values in meV while preserving
     # Lobatto z nodes.
     potential_lobatto = array.extract_diagonal(condition.potential).raw_data.reshape(
-        (nx_size, ny_size, nz)
+        (nx, ny, nz)
     )
     potential_lobatto = (
         potential_lobatto
@@ -201,37 +169,7 @@ def _raw_potential_in_input_file_convention(
 
     # Convert real-space potential samples to Fourier components at each
     # Lobatto z node.
-    potential_fourier = np.fft.fft2(potential_lobatto, axes=(0, 1)) / (nx_size * ny_size)
-
-    potential_values = potential_fourier
-    label_order = _ordered_fourier_pairs_from_condition(condition)
-    ordered = np.asarray(
-        [
-            potential_values[
-                pairs[pair_to_index[pair]][0] % nx_size,
-                pairs[pair_to_index[pair]][1] % ny_size,
-                :,
-            ]
-            # Legacy input preparation used an in-plane origin offset of one
-            # grid sample in each periodic direction.
-            * np.exp(
-                1j
-                * 2
-                * np.pi
-                * (pair[0] / nx_size + pair[1] / ny_size)
-            )
-            for pair in label_order
-        ]
-    )
-
-    # Match the fixed scientific notation precision used in pot*.in files.
-    return np.asarray(
-        [
-            complex(float(f"{value.real:+.6e}"), float(f"{value.imag:+.6e}"))
-            for value in ordered.reshape(-1)
-        ],
-        dtype=np.complex128,
-    )
+    return np.fft.fft2(potential_lobatto, axes=(0, 1)).reshape(-1) / (nx * ny)
 
 
 def _manual_example_condition() -> tuple[ScatteringCondition, OptimizationConfig]:
@@ -271,35 +209,36 @@ def _manual_example_condition() -> tuple[ScatteringCondition, OptimizationConfig
     return condition, config
 
 
-def _run_manual_example(tmp_path: Path) -> dict[tuple[int, int], float]:
-    condition, config = _manual_example_condition()
+def _run_multiscat_cli(
+    condition: ScatteringCondition, config: OptimizationConfig
+) -> dict[tuple[int, int], float]:
 
     binary = ROOT / "multiscat"
     if not binary.exists():
         subprocess.run(["make", "multiscat"], cwd=ROOT, check=True)
 
-    (tmp_path / "pot10001.in").write_text(_potential_from_condition(condition))
-    (tmp_path / "scatCond.in").write_text(_scat_cond_from_condition(condition))
-    (tmp_path / "FourierLabels.in").write_text(fourier_labels_from_condition(condition))
-    (tmp_path / "Multiscat.conf").write_text(
-        _multiscat_conf_from_condition(condition, config)
-    )
+    with tempfile.TemporaryDirectory() as temp_dir:
+        tmp_path = Path(temp_dir)
+        (tmp_path / "pot10001.in").write_text(_potential_from_condition(condition))
+        (tmp_path / "scatCond.in").write_text(_scat_cond_from_condition(condition))
+        (tmp_path / "Multiscat.conf").write_text(
+            _multiscat_conf_from_condition(condition, config)
+        )
 
-    subprocess.run([str(binary), "Multiscat.conf"], cwd=tmp_path, check=True)
-    output_file = tmp_path / "diffrac10001.out"
-    assert output_file.exists(), "Expected diffrac10001.out to be generated"
-    return  _parse_intensities(output_file)
-
-
-def test_manual_lif_exercise_intensities(tmp_path: Path) -> None:
-    intensities = _run_manual_example(tmp_path)
+        subprocess.run([str(binary), "Multiscat.conf"], cwd=tmp_path, check=True)
+        output_file = tmp_path / "diffrac10001.out"
+        assert output_file.exists(), "Expected diffrac10001.out to be generated"
+        return _parse_intensities(output_file)
 
 
+def test_manual_lif_exercise_intensities() -> None:
 
+    condition, config = _manual_example_condition()
+    intensities = _run_multiscat_cli(condition, config)
 
     assert math.isclose(sum(intensities.values()), 1.0, abs_tol=1e-6)
 
-    expected_from_file = _parse_raw_intensities(
+    expected_from_file = _parse_intensities(
         TESTS_DIR / Path("expected_intensities.txt")
     )
     for spot, expected_value in expected_from_file.items():
@@ -312,12 +251,8 @@ def test_raw_potential_in_input_file_convention() -> None:
     from_condition = _raw_potential_in_input_file_convention(condition)
 
     reference_potential = TESTS_DIR / Path("pot10001.in")
+    reference_potential.write_text(_potential_from_condition(condition))
     expected = _load_potential_file_as_array(reference_potential)
 
     assert expected.shape == from_condition.shape
-    np.testing.assert_allclose(
-        (from_condition),
-        (expected),
-        rtol =1e-5
-        
-    )
+    np.testing.assert_allclose((from_condition), (expected), rtol=1e-5)
