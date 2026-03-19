@@ -5,6 +5,7 @@ import re
 import subprocess
 from pathlib import Path
 import tempfile
+from typing import Any
 
 import numpy as np
 from slate_core import array
@@ -17,11 +18,12 @@ from scipy.constants import (  # type: ignore[import-untyped]
 from slate_quantum import operator
 
 from multiscat.basis import (
+    close_coupling_basis,
     scattering_metadata_from_stacked_delta_x,
     split_scattering_metadata,
 )
 from multiscat.config import OptimizationConfig, ScatteringCondition
-
+from multiscat.interpolate import ScatteringOperator
 
 ROOT = Path(__file__).resolve().parents[1]
 TESTS_DIR = Path(__file__).resolve().parent
@@ -65,41 +67,33 @@ def _parse_intensities(output_file: Path) -> dict[tuple[int, int], float]:
     return intensities
 
 
-def _scat_cond_from_condition(condition: ScatteringCondition) -> str:
+def _condition_to_input_file(condition: ScatteringCondition) -> str:
     scattering_vector = np.asarray(condition.incident_k)
     scattering_magnitude = float(np.linalg.norm(scattering_vector))
     assert scattering_magnitude > 0, "Incident wavevector magnitude must be non-zero"
 
+    mass_amu = condition.mass / atomic_mass
     energy_meV = condition.incident_energy / (electron_volt * 10**-3)
     theta_degrees = np.degrees(condition.theta)
     phi_degrees = np.degrees(condition.phi)
 
     scat_cond_lines = [
         "Comment line: Energy, theta, phi   This file defines the combination of conditions to be used by multiscat",
+        f"{mass_amu:.10g}       !helium mass",
         f"{energy_meV:.10g},{theta_degrees:.10g},{phi_degrees:.10g}",
     ]
     return "\n".join(scat_cond_lines) + "\n"
 
 
-def _multiscat_conf_from_condition(
-    condition: ScatteringCondition,
-    config: OptimizationConfig,
-) -> str:
-    mass_amu = condition.mass / atomic_mass
-    _a = condition.metadata.children[2].domain
-    z_start_angstrom = _a.start / angstrom
-    z_end_angstrom = (_a.start + _a.delta) / angstrom
+def _configuration_to_input_file(config: OptimizationConfig) -> str:
     lines = [
         "scatCond.in\t! The scattering conditions input file",
         "1       !itest=1 enables output of each diffraction intensity; itest=0 outputs specular only",
         "0       !gmres preconditioner flag (ipc)",
         f"{int(np.log10(1 / config.precision))}       !number of significant figures convergence (nsf)",
-        f"{z_start_angstrom:.10g},{z_end_angstrom:.10g}       !integration range (zmin,zmax)",
         "120       !max -ve energy of closed channels (dmax)",
         "120       !max index of channels (imax)",
-        "10001       !startindex",
-        "10001       !endindex",
-        f"{mass_amu:.10g}       !helium mass",
+        "pot10001.in       !potential input file",
     ]
     return "\n".join(lines) + "\n"
 
@@ -119,12 +113,32 @@ def _load_potential_lines_as_array(lines: list[str]) -> np.ndarray:
     return np.asarray(values, dtype=np.complex128)
 
 
-def _potential_from_condition(condition: ScatteringCondition) -> str:
-    potential_lobatto = _raw_potential_in_input_file_convention(condition)
-    nx, ny, nz = condition.metadata.shape
+
+def _raw_potential_in_input_file_convention(
+    potential: ScatteringOperator,
+) -> np.ndarray[Any, np.dtype[np.complex128]]:
+
+    potential_diagonal = array.extract_diagonal(potential)
+    nx, ny, nz = potential_diagonal.basis.metadata().shape
+    basis_weights = potential_diagonal.basis.metadata().children[2].basis_weights
+    basis = close_coupling_basis(potential_diagonal.basis.metadata())
+
+    data = potential_diagonal.with_basis(basis).raw_data
+    data = data.reshape((nx, ny, nz)) * (basis_weights[np.newaxis, np.newaxis, :])
+
+    # Multiscat uses a slightly different fourier convention
+    return data.ravel() / (electron_volt * 10**-3 * np.sqrt(nx * ny))
+
+def _potential_to_input_file(potential: ScatteringOperator) -> str:
+    potential_lobatto = _raw_potential_in_input_file_convention(potential)
+    metadata = potential.basis.metadata().children[0]
+    nx, ny, nz = metadata.shape
+    z_domain = metadata.children[2].domain
+    z_start_angstrom = z_domain.start / angstrom
+    z_end_angstrom = (z_domain.start + z_domain.delta) / angstrom
     nfc = nx * ny
-    metadata_x01, _ = split_scattering_metadata(condition.metadata)
-    directions = condition.metadata.extra.vectors
+    metadata_x01, _ = split_scattering_metadata(metadata)
+    directions = metadata.extra.vectors
     x_vector = np.asarray(directions[0]) * metadata_x01.children[0].domain.delta
     y_vector = np.asarray(directions[1]) * metadata_x01.children[1].domain.delta
     ax_angstrom = x_vector[0] / angstrom
@@ -138,6 +152,8 @@ def _potential_from_condition(condition: ScatteringCondition) -> str:
         f"{nfc} {nx} {ny} {nz}",
         "Unit cell vectors in Angstrom: ax ay bx by",
         f"{ax_angstrom:.10g} {ay_angstrom:.10g} {bx_angstrom:.10g} {by_angstrom:.10g}",
+        "Integration range in Angstrom: zmin zmax",
+        f"{z_start_angstrom:.10g} {z_end_angstrom:.10g}",
         "Format: (real, imag)",
         "Ordering: Fourier component then z-slice",
         "Do not edit by hand",
@@ -147,29 +163,6 @@ def _potential_from_condition(condition: ScatteringCondition) -> str:
         for value in potential_lobatto.reshape(-1)
     ]
     return "\n".join([*header_lines, *data_lines]) + "\n"
-
-
-def _raw_potential_in_input_file_convention(
-    condition: ScatteringCondition,
-) -> np.ndarray:
-
-    nx, ny, nz = condition.metadata.shape
-
-    # Potential data from the Lobatto-basis operator is weighted in z.
-    # Convert to unweighted potential values in meV while preserving
-    # Lobatto z nodes.
-    potential_lobatto = array.extract_diagonal(condition.potential).raw_data.reshape(
-        (nx, ny, nz)
-    )
-    potential_lobatto = (
-        potential_lobatto
-        * (condition.metadata.children[2].basis_weights[np.newaxis, np.newaxis, :])
-        / (electron_volt * 10**-3)
-    )
-
-    # Convert real-space potential samples to Fourier components at each
-    # Lobatto z node.
-    return np.fft.fft2(potential_lobatto, axes=(0, 1)).reshape(-1) / (nx * ny)
 
 
 def _simple_example_condition() -> tuple[ScatteringCondition, OptimizationConfig]:
@@ -220,15 +213,15 @@ def _run_multiscat_cli(
 
     with tempfile.TemporaryDirectory() as temp_dir:
         tmp_path = Path(temp_dir)
-        (tmp_path / "pot10001.in").write_text(_potential_from_condition(condition))
-        (tmp_path / "scatCond.in").write_text(_scat_cond_from_condition(condition))
-        (tmp_path / "Multiscat.conf").write_text(
-            _multiscat_conf_from_condition(condition, config)
+        (tmp_path / "pot10001.in").write_text(
+            _potential_to_input_file(condition.potential)
         )
+        (tmp_path / "scatCond.in").write_text(_condition_to_input_file(condition))
+        (tmp_path / "Multiscat.conf").write_text(_configuration_to_input_file(config))
 
         subprocess.run([str(binary), "Multiscat.conf"], cwd=tmp_path, check=True)
-        output_file = tmp_path / "diffrac10001.out"
-        assert output_file.exists(), "Expected diffrac10001.out to be generated"
+        output_file = tmp_path / "diffrac.out"
+        assert output_file.exists(), "Expected diffrac.out to be generated"
         return _parse_intensities(output_file)
 
 
@@ -306,11 +299,10 @@ def test_rotated_system() -> None:
 
 def test_raw_potential_in_input_file_convention() -> None:
     condition, _ = _simple_example_condition()
-    from_condition = _raw_potential_in_input_file_convention(condition)
+    from_condition = _raw_potential_in_input_file_convention(condition.potential)
 
     reference_potential = TESTS_DIR / Path("pot10001.in")
-    reference_potential.write_text(_potential_from_condition(condition))
     expected = _load_potential_file_as_array(reference_potential)
 
     assert expected.shape == from_condition.shape
-    np.testing.assert_allclose((from_condition), (expected), rtol=1e-5)
+    np.testing.assert_allclose((from_condition), (expected), rtol=1e-5, atol=1e-10)

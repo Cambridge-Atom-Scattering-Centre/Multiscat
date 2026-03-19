@@ -25,7 +25,6 @@ program multiscat
   dimension p(nmax), w(mmax), z(mmax)
   dimension d(nmax), e(mmax), f(mmax,nmax), t(mmax,mmax)
   parameter (hbarsq = 4.18020)
-  integer startindex,endindex !start and ending indexes of the potential files to be used 
   integer endOfFile
   !Variables for potential, represented as fourier data
   complex*16 vfcfixed(NZFIXED_MAX,NVFCFIXED_MAX)   !FC's at the fixed points
@@ -61,6 +60,8 @@ program multiscat
 
   open (81, file=scattCondFile)
   read (81, *)!Skip the first line of conditions file
+  read (81, *) hemass
+  print *, 'Helium mass = ',hemass
 
   read (80,*) itest
   print *, 'Output mode = ',itest
@@ -74,8 +75,6 @@ program multiscat
   eps = 0.5d0*(10.0d0**(-nsf))
   print *, 'Convergence sig. figures = ',nsf
   print *, ''
-  read (80,*) zmin,zmax    !this is the required integration range; later we calculate how many points in the ramge are required and the potential is interpolated to those points
-  print *, 'z integration range = (',zmin,',',zmax,')'
   read (80,*) dmax
   print *, 'Max energy of closed channels = ',dmax
   read (80,*) imax
@@ -83,10 +82,8 @@ program multiscat
   print *, ''
   
   print *, ''
-  read(80,*) startindex !the start and end indices of the potential files to be used
-  read(80,*) endindex
-  print *, 'Calculating for potential input files between ',startindex,'.in and ',endindex,'.in'
-  read(80,*) hemass
+  read(80,*) fourierfile
+  print *, 'Calculating for potential input file ',trim(fourierfile)
   
 !===============preliminary calculation and setting up ===========================
   rmlmda = 2.0d0*hemass/hbarsq
@@ -100,19 +97,16 @@ program multiscat
   ireadip=12
 
 ! ============================================================================
-!do loop for using different potential files
-  do in=startindex,endindex
-        write(fourierfile,599) in
-  599 format('pot',i5,'.in')
-      if (itest.eq.1) write(outfile,598) in
-  598 format('diffrac',i5,'.out')
-     ! diffrac will be the output file containing diffraction calculations;
-    if (itest.eq.1) open(21,file=outfile,status='unknown')
-    if (itest.eq.1) write(21,*) 'Diffraction intensities for potential:',fourierfile 
+  if (itest.eq.1) then
+    outfile='diffrac.out'
+    ! diffrac will be the output file containing diffraction calculations;
+    open(21,file=outfile,status='unknown')
+    write(21,*) 'Diffraction intensities for potential:',fourierfile
+  end if
       
   !========Initialize the potential================================================
   
-    call loadfixedpot(nzfixed,nfc,ivx,ivy,nfc00,vfcfixed,fourierfile,ax,ay,bx,by)
+    call loadfixedpot(nzfixed,nfc,ivx,ivy,nfc00,vfcfixed,fourierfile,ax,ay,bx,by,zmin,zmax)
     !this will read in the potential Fourier components and convert to the program units
 
     if (nfc .gt. nfcx) then
@@ -132,6 +126,7 @@ program multiscat
     print *, 'Total number of fourier components from potential = ',nfc
     print *, 'Number of z points in fourier components (nzfixed) = ',nzfixed
     print *, 'Unit cell vectors (A): a = (',ax,',',ay,'), b = (',bx,',',by,')'
+    print *, 'z integration range = (',zmin,',',zmax,')'
   
   !========Do the scaterring calculations=========================================
     !Calculate scattering over the incident conditions required
@@ -190,6 +185,6 @@ program multiscat
         stop
       end if
     end do
-  end do  
+ 
 end program multiscat
 
