@@ -32,7 +32,7 @@ program multiscat
 
   common /const/ hemass, rmlmda
   !common /const/ rmlmda !commented by Boyao on 6 Dec 2020
-  common /cells/ a1,a2,b2,ei,theta,phi,a0
+  common /cells/ ax,ay,bx,by,ei,theta,phi,a0
 
 
   !===========================================================================
@@ -82,13 +82,6 @@ program multiscat
   print *, 'Max index of channels = ',imax
   print *, ''
   
-  !read in and set shape of real space lattice; it is hexagonal lattice, but a1,a2 and b2 are
-  ! its dimensions in cartesian coordinates 
-  read (80,*) a1       !surface lattice constant in x direction (see basis)
-  read (80,*) a2
-  read (80,*) b2       !surface lattice constant in y direction
-  print *, 'Unit cell (A) = ',a1,'x',b2
-
   print *, ''
   read(80,*) startindex !the start and end indices of the potential files to be used
   read(80,*) endindex
@@ -119,7 +112,7 @@ program multiscat
       
   !========Initialize the potential================================================
   
-    call loadfixedpot(nzfixed,nfc,ivx,ivy,nfc00,vfcfixed,fourierfile)
+    call loadfixedpot(nzfixed,nfc,ivx,ivy,nfc00,vfcfixed,fourierfile,ax,ay,bx,by)
     !this will read in the potential Fourier components and convert to the program units
 
     if (nfc .gt. nfcx) then
@@ -138,6 +131,7 @@ program multiscat
 
     print *, 'Total number of fourier components from potential = ',nfc
     print *, 'Number of z points in fourier components (nzfixed) = ',nzfixed
+    print *, 'Unit cell vectors (A): a = (',ax,',',ay,'), b = (',bx,',',by,')'
   
   !========Do the scaterring calculations=========================================
     !Calculate scattering over the incident conditions required

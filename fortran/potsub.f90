@@ -17,7 +17,7 @@
 ! All z values are sequential, that is each whole basis function data is together,
 ! going from minimum z to maximum z, before progressing to the next FC.
 
-subroutine loadfixedpot(nzfixed,nfc,ivx,ivy,nfc00,vfcfixed,fourierfile)
+subroutine loadfixedpot(nzfixed,nfc,ivx,ivy,nfc00,vfcfixed,fourierfile,ax,ay,bx,by)
 
   implicit double precision (a-h,o-z)
   include 'multiscat.inc'
@@ -43,6 +43,8 @@ subroutine loadfixedpot(nzfixed,nfc,ivx,ivy,nfc00,vfcfixed,fourierfile)
   read(20,'(A)') header_line
   read(20,'(A)') header_line
   read(20,*) nfc_from_file, nkx, nky, header_nzfixed
+  read(20,'(A)') header_line
+  read(20,*) ax, ay, bx, by
   read(20,'(A)') header_line
   read(20,'(A)') header_line
   read(20,'(A)') header_line

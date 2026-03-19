@@ -1,6 +1,8 @@
 Generated from ScatteringCondition.potential
 Metadata line follows: nfc nkx nky nzlobatto
 1024 32 32 550
+Unit cell vectors in Angstrom: ax ay bx by
+2.84 0 0 2.84
 Format: (real, imag)
 Ordering: Fourier component then z-slice
 Do not edit by hand

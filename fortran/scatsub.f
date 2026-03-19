@@ -11,15 +11,8 @@ c
 c     gay, gby  = y components of unit vector of reciprocal lattice
 c     along symmetry direction 2
 c     
-c     a1     length of real space lattice vector along axis
-c     a2     x coordinate of other real space lattice vector
-c     b2     y coordinate of other real space lattice vector
-c     2
-c                                    y|   _____a1_____ 
-c     note that the a1,               |  /|          /
-c     and b2 are the                  | / |b2       /
-c     paramenters of the              |/__|________/____ x
-c     unit cell of substrate           a2    
+c     ax, ay  = first in-plane unit-cell vector components
+c     bx, by  = second in-plane unit-cell vector components
 c     
 c
 c     For each scattered channel:
@@ -35,16 +28,12 @@ c
       include 'multiscat.inc'
       dimension d(nmax), ix(nmax), iy(nmax)
       
-      common /cells/ a1,a2,b2,ei,theta,phi,a0,gax,gay,gbx,gby
+      common /cells/ ax,ay,bx,by,ei,theta,phi,a0,gax,gay,gbx,gby
       common /const/ hemass,rmlmda ! = 2m/h^2 !modified by Boyao on 6 Dec 2020
       DATA   Pi /3.141592653589793d0/
-           
-      ax=a1
-      ay=0
-      bx=a2
-      by=b2
-      
-      Auc=dabs(ax*by)
+
+      Auc=dabs(ax*by-ay*bx)
+      if (Auc .le. 0.0d0) stop 'ERROR: unit cell area must be positive.'
       RecUnit=2*Pi/Auc
       gax =  by*RecUnit
       gay = -bx*RecUnit

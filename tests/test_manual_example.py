@@ -89,14 +89,6 @@ def _multiscat_conf_from_condition(
     _a = condition.metadata.children[2].domain
     z_start_angstrom = _a.start / angstrom
     z_end_angstrom = (_a.start + _a.delta) / angstrom
-    metadata_x01, _ = split_scattering_metadata(condition.metadata)
-    directions = condition.metadata.extra.vectors
-    x_vector = np.asarray(directions[0]) * metadata_x01.children[0].domain.delta
-    y_vector = np.asarray(directions[1]) * metadata_x01.children[1].domain.delta
-    a1_angstrom = x_vector[0] / angstrom
-    a2_angstrom = y_vector[0] / angstrom
-    b2_angstrom = y_vector[1] / angstrom
-
     lines = [
         "scatCond.in\t! The scattering conditions input file",
         "1       !itest=1 enables output of each diffraction intensity; itest=0 outputs specular only",
@@ -105,9 +97,6 @@ def _multiscat_conf_from_condition(
         f"{z_start_angstrom:.10g},{z_end_angstrom:.10g}       !integration range (zmin,zmax)",
         "120       !max -ve energy of closed channels (dmax)",
         "120       !max index of channels (imax)",
-        f'{a1_angstrom:.10g}       !a1 (see subroutine basis in "scatsub.f")',
-        f"{a2_angstrom:.10g}       !a2",
-        f"{b2_angstrom:.10g}       !b2",
         "10001       !startindex",
         "10001       !endindex",
         f"{mass_amu:.10g}       !helium mass",
@@ -134,11 +123,21 @@ def _potential_from_condition(condition: ScatteringCondition) -> str:
     potential_lobatto = _raw_potential_in_input_file_convention(condition)
     nx, ny, nz = condition.metadata.shape
     nfc = nx * ny
+    metadata_x01, _ = split_scattering_metadata(condition.metadata)
+    directions = condition.metadata.extra.vectors
+    x_vector = np.asarray(directions[0]) * metadata_x01.children[0].domain.delta
+    y_vector = np.asarray(directions[1]) * metadata_x01.children[1].domain.delta
+    ax_angstrom = x_vector[0] / angstrom
+    ay_angstrom = x_vector[1] / angstrom
+    bx_angstrom = y_vector[0] / angstrom
+    by_angstrom = y_vector[1] / angstrom
 
     header_lines = [
         "Generated from ScatteringCondition.potential",
         "Metadata line follows: nfc nkx nky nzlobatto",
         f"{nfc} {nx} {ny} {nz}",
+        "Unit cell vectors in Angstrom: ax ay bx by",
+        f"{ax_angstrom:.10g} {ay_angstrom:.10g} {bx_angstrom:.10g} {by_angstrom:.10g}",
         "Format: (real, imag)",
         "Ordering: Fourier component then z-slice",
         "Do not edit by hand",
@@ -173,7 +172,7 @@ def _raw_potential_in_input_file_convention(
     return np.fft.fft2(potential_lobatto, axes=(0, 1)).reshape(-1) / (nx * ny)
 
 
-def _manual_example_condition() -> tuple[ScatteringCondition, OptimizationConfig]:
+def _simple_example_condition() -> tuple[ScatteringCondition, OptimizationConfig]:
 
     HELIUM_MASS = physical_constants["alpha particle mass"][0]
     UNIT_CELL = 2.84 * angstrom
@@ -185,6 +184,7 @@ def _manual_example_condition() -> tuple[ScatteringCondition, OptimizationConfig
         offset=3.0 * angstrom,
         beta=0.10,
     )
+
     metadata = scattering_metadata_from_stacked_delta_x(
         (
             np.array([UNIT_CELL, 0, 0]),
@@ -200,7 +200,7 @@ def _manual_example_condition() -> tuple[ScatteringCondition, OptimizationConfig
         mass=HELIUM_MASS,
         energy=20 * electron_volt * 10**-3,
         theta=np.deg2rad(30),
-        phi=0,
+        phi=np.deg2rad(0),
         potential=operator.build.corrugated_morse_potential(
             metadata,
             MORSE_PARAMETERS,
@@ -232,9 +232,9 @@ def _run_multiscat_cli(
         return _parse_intensities(output_file)
 
 
-def test_manual_lif_exercise_intensities() -> None:
+def test_simple_system() -> None:
 
-    condition, config = _manual_example_condition()
+    condition, config = _simple_example_condition()
     intensities = _run_multiscat_cli(condition, config)
 
     assert math.isclose(sum(intensities.values()), 1.0, abs_tol=1e-6)
@@ -247,8 +247,65 @@ def test_manual_lif_exercise_intensities() -> None:
         assert math.isclose(intensities[spot], expected_value, abs_tol=1e-5)
 
 
+def _rotated_example_condition() -> tuple[ScatteringCondition, OptimizationConfig]:
+
+    HELIUM_MASS = physical_constants["alpha particle mass"][0]
+    UNIT_CELL = 2.84 * angstrom
+    Z_HEIGHT = 8 * angstrom
+
+    MORSE_PARAMETERS = operator.build.CorrugatedMorseParameters(
+        depth=7.63 * electron_volt * 10**-3,
+        height=(1.0 / 1.1) * angstrom,
+        offset=3.0 * angstrom,
+        beta=0.10,
+    )
+    rotation = np.deg2rad(20.0)
+    cos_t = np.cos(rotation)
+    sin_t = np.sin(rotation)
+    rotation_matrix = np.array(
+        [
+            [cos_t, -sin_t, 0.0],
+            [sin_t, cos_t, 0.0],
+            [0.0, 0.0, 1.0],
+        ]
+    )
+    x_vector = rotation_matrix @ np.array([UNIT_CELL, 0.0, 0.0])
+    y_vector = rotation_matrix @ np.array([0.0, UNIT_CELL, 0.0])
+
+    metadata = scattering_metadata_from_stacked_delta_x(
+        (
+            x_vector,
+            y_vector,
+            np.array([0.0, 0.0, Z_HEIGHT]),
+        ),
+        (32, 32, 550),
+    )
+
+    condition = ScatteringCondition.from_angles(
+        mass=HELIUM_MASS,
+        energy=20 * electron_volt * 10**-3,
+        theta=np.deg2rad(30),
+        phi=np.deg2rad(0),
+        potential=operator.build.corrugated_morse_potential(
+            metadata,
+            MORSE_PARAMETERS,
+        ),
+    )
+    config = OptimizationConfig(precision=1e-5, max_iterations=1000)
+    return condition, config
+
+
+def test_rotated_system() -> None:
+
+    condition, config = _rotated_example_condition()
+    intensities = _run_multiscat_cli(condition, config)
+
+    assert intensities, "Expected at least one diffraction intensity"
+    assert math.isclose(sum(intensities.values()), 1.0, abs_tol=1e-6)
+
+
 def test_raw_potential_in_input_file_convention() -> None:
-    condition, _ = _manual_example_condition()
+    condition, _ = _simple_example_condition()
     from_condition = _raw_potential_in_input_file_convention(condition)
 
     reference_potential = TESTS_DIR / Path("pot10001.in")
