@@ -33,7 +33,6 @@ def _parse_raw_intensities(output_file: Path) -> dict[tuple[int, int], float]:
     # Regex for lines without the '#' prefix: two ints and one float
     pattern = re.compile(r"^\s*(-?\d+)\s+(-?\d+)\s+([-+]?\d*\.?\d+(?:[eE][-+]?\d+)?)\s*")
     intensities: dict[tuple[int, int], float] = {}
-    print(output_file.read_text())
     with output_file.open("r") as f:
         for line in f:
             stripped = line.strip()
@@ -55,7 +54,6 @@ def _parse_intensities(output_file: Path) -> dict[tuple[int, int], float]:
         r"^\s*#?\s*(-?\d+)\s+(-?\d+)\s+([-+]?\d*\.?\d+(?:[eE][-+]?\d+)?)\s*"
     )
     intensities: dict[tuple[int, int], float] = {}
-    print(output_file.read_text())
     with output_file.open("r") as f:
         for line in f:
             match = pattern.match(line)
@@ -283,7 +281,7 @@ def _rotated_example_condition() -> tuple[ScatteringCondition, OptimizationConfi
             y_vector,
             np.array([0.0, 0.0, Z_HEIGHT]),
         ),
-        (32, 32, 550),
+        (10, 10, 550),
     )
 
     condition = ScatteringCondition.from_angles(

@@ -88,13 +88,11 @@ program multiscat
   print *, ''
 
   !=====================read in parameters from config file==========================
-  rmlmda = 2.0d0*hemass/hbarsq
   call load_optimization_file(optimizationFile, optimization_data)
   call load_scattering_conditions_file(scattCondFile, scatt_conditions_data)
-  call load_fixed_potential(fourierfile, rmlmda, potential_data)
-
-  
   hemass = scatt_conditions_data%helium_mass
+  rmlmda = 2.0d0*hemass/hbarsq
+  call load_fixed_potential(fourierfile, rmlmda, potential_data)
 
   itest = optimization_data%output_mode
   ipc = optimization_data%gmres_preconditioner_flag
