@@ -28,16 +28,40 @@ ROOT = Path(__file__).resolve().parents[1]
 TESTS_DIR = Path(__file__).resolve().parent
 
 
-def _parse_intensities(output_file: Path) -> dict[tuple[int, int], float]:
-    pattern = re.compile(r"^#\s+(-?\d+)\s+(-?\d+)\s+([0-9.E+-]+)\s*$")
+def _parse_raw_intensities(output_file: Path) -> dict[tuple[int, int], float]:
+    # Regex for lines without the '#' prefix: two ints and one float
+    pattern = re.compile(r"^\s*(-?\d+)\s+(-?\d+)\s+([-+]?\d*\.?\d+(?:[eE][-+]?\d+)?)\s*")
     intensities: dict[tuple[int, int], float] = {}
-    for line in output_file.read_text().splitlines():
-        match = pattern.match(line)
-        if not match:
-            continue
-        h = int(match.group(1))
-        k = int(match.group(2))
-        intensities[(h, k)] = float(match.group(3))
+    print(output_file.read_text())
+    with output_file.open("r") as f:
+        for line in f:
+            stripped = line.strip()
+            # Skip empty lines or actual comments
+            if not stripped or stripped.startswith("#"):
+                continue
+                
+            match = pattern.match(line)
+            if match:
+                h = int(match.group(1))
+                k = int(match.group(2))
+                val = float(match.group(3))
+                intensities[(h, k)] = val
+    return intensities
+
+def _parse_intensities(output_file: Path) -> dict[tuple[int, int], float]:
+    # This regex looks for lines starting with '#' followed by two integers and a float.
+    # It accounts for the leading '#' present in your specific data example.
+    pattern = re.compile(r"^\s*#\s+(-?\d+)\s+(-?\d+)\s+([-+]?\d*\.?\d+(?:[eE][-+]?\d+)?)\s*")
+    intensities: dict[tuple[int, int], float] = {}
+    print(output_file.read_text())
+    with output_file.open("r") as f:
+        for line in f:
+            match = pattern.match(line)
+            if match:
+                h = int(match.group(1))
+                k = int(match.group(2))
+                val = float(match.group(3))
+                intensities[(h, k)] = val
     return intensities
 
 
@@ -275,7 +299,9 @@ def test_manual_lif_exercise_intensities(tmp_path: Path) -> None:
 
     assert math.isclose(sum(intensities.values()), 1.0, abs_tol=1e-6)
 
-    expected_from_file = _parse_intensities(TESTS_DIR / Path("expected_intensities.txt"))
+    expected_from_file = _parse_raw_intensities(
+        TESTS_DIR / Path("expected_intensities.txt")
+    )
     for spot, expected_value in expected_from_file.items():
         assert spot in intensities, f"Missing diffraction spot {spot}"
         assert math.isclose(intensities[spot], expected_value, abs_tol=1e-5)
