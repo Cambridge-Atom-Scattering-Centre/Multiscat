@@ -48,9 +48,10 @@ def _parse_raw_intensities(output_file: Path) -> dict[tuple[int, int], float]:
     return intensities
 
 def _parse_intensities(output_file: Path) -> dict[tuple[int, int], float]:
-    # This regex looks for lines starting with '#' followed by two integers and a float.
-    # It accounts for the leading '#' present in your specific data example.
-    pattern = re.compile(r"^\s*#\s+(-?\d+)\s+(-?\d+)\s+([-+]?\d*\.?\d+(?:[eE][-+]?\d+)?)\s*")
+    # Parse diffraction rows whether they are emitted as "h k I" or "# h k I".
+    pattern = re.compile(
+        r"^\s*#?\s*(-?\d+)\s+(-?\d+)\s+([-+]?\d*\.?\d+(?:[eE][-+]?\d+)?)\s*"
+    )
     intensities: dict[tuple[int, int], float] = {}
     print(output_file.read_text())
     with output_file.open("r") as f:
@@ -69,7 +70,7 @@ def _scat_cond_from_condition(condition: ScatteringCondition) -> str:
     scattering_magnitude = float(np.linalg.norm(scattering_vector))
     assert scattering_magnitude > 0, "Incident wavevector magnitude must be non-zero"
 
-    energy_meV = condition.incident_energy / (electron_volt * 10**3)
+    energy_meV = condition.incident_energy / (electron_volt * 10**-3)
     theta_degrees = np.degrees(condition.theta)
     phi_degrees = np.degrees(condition.phi)
 
@@ -238,7 +239,7 @@ def test_manual_lif_exercise_intensities() -> None:
 
     assert math.isclose(sum(intensities.values()), 1.0, abs_tol=1e-6)
 
-    expected_from_file = _parse_intensities(
+    expected_from_file = _parse_raw_intensities(
         TESTS_DIR / Path("expected_intensities.txt")
     )
     for spot, expected_value in expected_from_file.items():
